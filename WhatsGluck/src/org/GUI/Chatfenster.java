@@ -60,6 +60,15 @@ public class Chatfenster extends JFrame{
 		//SendePanel
 		sendePanel = new JPanel();
 		sendePanel.setLayout(new FlowLayout());
+		//TODO Noch nicht fertig: Mit Enter Nachricht loschicken
+		//sendePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), "EnterPressed");
+		sendePanel.getActionMap().put("EnterPressed", new AbstractAction(){
+				@Override
+				public void actionPerformed(ActionEvent e) {
+					System.out.println("Enter pressed");
+				}
+			});
+		
 		chatPanel.add(sendePanel, BorderLayout.SOUTH);
 		
 		//NachrichtField

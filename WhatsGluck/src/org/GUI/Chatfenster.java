@@ -68,15 +68,6 @@ public class Chatfenster extends JFrame{
 		//SendePanel
 		sendePanel = new JPanel();
 		sendePanel.setLayout(new FlowLayout());
-		//TODO Noch nicht fertig: Mit Enter Nachricht loschicken
-		//sendePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0, false), "EnterPressed");
-		sendePanel.getActionMap().put("EnterPressed", new AbstractAction(){
-				@Override
-				public void actionPerformed(ActionEvent e) {
-					System.out.println("Enter pressed");
-				}
-			});
-		
 		chatPanel.add(sendePanel, BorderLayout.SOUTH);
 		
 		//NachrichtField
@@ -96,6 +87,14 @@ public class Chatfenster extends JFrame{
 				}
 			}
 		});
+		nachrichtField.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER,0,false), "EnterPressed");
+		nachrichtField.getActionMap().put("EnterPressed", new javax.swing.AbstractAction(){
+			private static final long serialVersionUID = -5365806399137704002L;
+				public void actionPerformed(ActionEvent e) {
+					neueNachrichtSenden();
+					nachrichtField.setText("");;
+				}
+			});
 		sendePanel.add(nachrichtField);
 		
 		//SendeButton
@@ -103,10 +102,7 @@ public class Chatfenster extends JFrame{
 		sendeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				if(!nachrichtField.getText().equals(standartSendeText)) {
-					neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
-					nachrichtField.setText(standartSendeText);
-				}
+				neueNachrichtSenden();
 			}
 		});
 		sendePanel.add(sendeButton);
@@ -116,6 +112,15 @@ public class Chatfenster extends JFrame{
 		this.setTitle("WhatsGluck");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
+	}
+	
+	//TODO Im Moment nur Platzhalter für eine Sende-Methode, damit Button/Enter-Taste dieselbe Aktion ausführt
+	//Sendet die Nachricht 
+	public void neueNachrichtSenden() {
+		if(!nachrichtField.getText().equals(standartSendeText) && !nachrichtField.getText().isEmpty()) {
+			neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
+			nachrichtField.setText(standartSendeText);
+		}
 	}
 	
 	//Zeigt eine neue Nachricht in der ChatArea an

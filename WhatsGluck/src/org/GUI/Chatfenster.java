@@ -37,12 +37,12 @@ public class Chatfenster extends JFrame{
 		
 		//KontaktPanel
 		kontaktPanel = new JPanel();
-		kontaktPanel.setLayout(new GridLayout(0, 1));
+		kontaktPanel.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		for(int i = 0; i < 200; i++) {
-			JLabel label = new JLabel("Kontakt " + i);
-			label.setPreferredSize(new Dimension(kontaktBreite, kontaktHoehe));
-			kontaktPanel.add(label);
+			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
+			contact.setPreferredSize(new Dimension(kontaktBreite, kontaktHoehe));
+			kontaktPanel.add(contact);
 		}
 		
 		//KontaktScrollPane

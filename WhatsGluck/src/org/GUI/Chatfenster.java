@@ -23,11 +23,12 @@ public class Chatfenster extends JFrame{
 	private JButton sendeButton;
 	private StyleContext context;
 	
-	public static final int hoehe = 500;
-	public static final int breite = 600;
-	public static final int kontaktBreite = 100;
-	public static final int kontaktHoehe = 30;
-	public static final String standartSendeText = "Nachricht schreiben";
+	public static final int HOEHE = 500;
+	public static final int BREITE = 600;
+	public static final int KONTAKT_BREITE = 100;
+	public static final int KONTAKT_HOEHE = 30;
+	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben";
+	public static final int MAX_WORTLAENGE = 60;
 	
 	public Chatfenster() {
 		//RootPanel 
@@ -41,13 +42,13 @@ public class Chatfenster extends JFrame{
 		
 		for(int i = 0; i < 200; i++) {
 			JLabel label = new JLabel("Kontakt " + i);
-			label.setPreferredSize(new Dimension(kontaktBreite, kontaktHoehe));
+			label.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
 			kontaktPanel.add(label);
 		}
 		
 		//KontaktScrollPane
 		kontaktScrollPane = new JScrollPane(kontaktPanel);
-		kontaktScrollPane.setPreferredSize(new Dimension(kontaktBreite + 20, hoehe));
+		kontaktScrollPane.setPreferredSize(new Dimension(KONTAKT_BREITE + 20, HOEHE));
 		rootPanel.add(kontaktScrollPane, BorderLayout.WEST);
 		
 		//ChatPanel
@@ -59,10 +60,13 @@ public class Chatfenster extends JFrame{
 		context = new StyleContext();
 		StyledDocument doc = new DefaultStyledDocument(context);
 		chatPane = new JTextPane(doc);
+		chatPane.setMaximumSize(new Dimension(200, 200));
 		chatPane.setEditable(false);
 		
 		//ChatScrollPane
 		chatScrollPane = new JScrollPane(chatPane);
+		chatScrollPane.setViewportView(chatPane);
+		chatScrollPane.setMaximumSize(new Dimension(200,200));
 		chatPanel.add(chatScrollPane, BorderLayout.CENTER);
 		
 		//SendePanel
@@ -71,11 +75,11 @@ public class Chatfenster extends JFrame{
 		chatPanel.add(sendePanel, BorderLayout.SOUTH);
 		
 		//NachrichtField
-		nachrichtField = new JTextField(standartSendeText, 20);
+		nachrichtField = new JTextField(STANDART_SENDE_TEXT, 20);
 		nachrichtField.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
-				if(nachrichtField.getText().equals(standartSendeText)) {
+				if(nachrichtField.getText().equals(STANDART_SENDE_TEXT)) {
 					nachrichtField.setText("");
 				}
 			}
@@ -83,7 +87,7 @@ public class Chatfenster extends JFrame{
 			@Override
 			public void focusLost(FocusEvent e) {
 				if(nachrichtField.getText().equals("")) {
-					nachrichtField.setText(standartSendeText);
+					nachrichtField.setText(STANDART_SENDE_TEXT);
 				}
 			}
 		});
@@ -108,7 +112,7 @@ public class Chatfenster extends JFrame{
 		sendePanel.add(sendeButton);
 		
 		//JFrame
-		this.setSize(breite, hoehe);
+		this.setSize(BREITE, HOEHE);
 		this.setTitle("WhatsGluck");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
@@ -117,9 +121,9 @@ public class Chatfenster extends JFrame{
 	//TODO Im Moment nur Platzhalter für eine Sende-Methode, damit Button/Enter-Taste dieselbe Aktion ausführt
 	//Sendet die Nachricht 
 	public void neueNachrichtSenden() {
-		if(!nachrichtField.getText().equals(standartSendeText) && !nachrichtField.getText().isEmpty()) {
+		if(!nachrichtField.getText().equals(STANDART_SENDE_TEXT) && !nachrichtField.getText().isEmpty()) {
 			neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
-			nachrichtField.setText(standartSendeText);
+			nachrichtField.setText(STANDART_SENDE_TEXT);
 		}
 	}
 	
@@ -127,6 +131,17 @@ public class Chatfenster extends JFrame{
 	//@Param nachricht die neue Nachricht
 	//@Param selbst ob man selbst der Absender der Nachricht ist
 	public void neueNachrichtAnzeigen(String nachricht, boolean selbst) {
+		String[] woerter = nachricht.split(" ");
+		
+		for(String wort : woerter) {
+			int vielfache = wort.length() / MAX_WORTLAENGE;
+			StringBuilder builder = new StringBuilder(wort);
+			for(int i = 0; i < vielfache; i++) {
+				builder.insert((i+1)*MAX_WORTLAENGE, "- ");
+			}
+			nachricht = nachricht.replace(wort, builder);
+		}
+		
 		StyledDocument doc = chatPane.getStyledDocument();
 		Style style = context.getStyle(StyleContext.DEFAULT_STYLE);
 		int pos = doc.getLength();
@@ -147,5 +162,8 @@ public class Chatfenster extends JFrame{
 		}catch(BadLocationException e) {
 			e.printStackTrace();
 		}
+		
+		this.revalidate();
+		this.repaint();
 	}
 }

@@ -137,7 +137,7 @@ public class Chatfenster extends JFrame{
 			int vielfache = wort.length() / MAX_WORTLAENGE;
 			StringBuilder builder = new StringBuilder(wort);
 			for(int i = 0; i < vielfache; i++) {
-				builder.insert((i+1)*MAX_WORTLAENGE, "- ");
+				builder.insert((i+1)*MAX_WORTLAENGE, "\n");
 			}
 			nachricht = nachricht.replace(wort, builder);
 		}

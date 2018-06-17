@@ -4,28 +4,27 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 public class Kontakt extends JPanel {
 	
-	//TODO: Kontakt-Bild implememtieren? und Farbmischung anpassen!
 	private static final long serialVersionUID = -3266678289400497661L;
-	private static final Color defaultColor = Color.GRAY;
-	//private static final String imagePath = "";
+	private static final Color defaultColor = new Color(91, 170, 255);
+	private static final Color highlightColor = new Color(81, 224, 71);
+	private static final String imagePath = "resources\\contactIcon.png";
 	private String contactName, ipAdress;
-	//private ImageIcon profileImage = new ImageIcon(imagePath,"profileImage");
+	private ImageIcon profileImage = new ImageIcon(imagePath,"profileImage");
 	private int id;
 	private Color color;
+
 	
 	public Kontakt(String contactName, String ipAdress, int id){
-		this(contactName, ipAdress, id, defaultColor);
-	}
-	
-	public Kontakt(String contactName, String ipAdress, int id, Color color){
 		this.contactName = contactName;
 		this.ipAdress = ipAdress;
-		this.color = color;
+		this.color = defaultColor;
 		this.setId(id);
 		show();
 	}
@@ -37,32 +36,56 @@ public class Kontakt extends JPanel {
     }
 	
 	public void show(){
-		this.setOpaque(true);
 		this.setLayout(new BorderLayout());
+		this.add(new JLabel(profileImage), BorderLayout.WEST);
 		
-		JTextArea contactNameField = new JTextArea(contactName);
+		//contentPanel
+		JPanel contentPanel = new JPanel();
+		contentPanel.setVisible(true);
+		contentPanel.setLayout(new BorderLayout());
+		this.add(contentPanel, BorderLayout.CENTER);
+		
+		//contactNameField
+		JTextArea contactNameField = new JTextArea("\n  "+contactName);
 		contactNameField.setOpaque(false);
-		contactNameField.setFont(new Font("Serif", Font.BOLD, 12));
+		contactNameField.setFont(new Font("Verdana", Font.BOLD, 12));
 		contactNameField.setForeground(Color.BLACK);
 		contactNameField.setEditable(false);
-		this.add(contactNameField, BorderLayout.CENTER);
+		contentPanel.add(contactNameField, BorderLayout.CENTER);
 		
-		//this.add(profileImage, BorderLayout.WEST);
-		
+		//ipAdressField
 		JTextArea ipAdressField = new JTextArea("IP: "+ipAdress);
 		ipAdressField.setOpaque(false);
 		ipAdressField.setFont(new Font("Monospaced", Font.PLAIN, 8));
 		ipAdressField.setForeground(Color.WHITE);
 		ipAdressField.setEditable(false);
-		this.add(ipAdressField, BorderLayout.SOUTH);
+		contentPanel.add(ipAdressField, BorderLayout.SOUTH);
+		
+		contentPanel.setOpaque(false);
+		this.setOpaque(true);
+		
 	}
 
+	//Gibt die ID des Kontaktes zurück
+	//@Return ID des Kontaktes
 	public int getId() {
 		return id;
 	}
 
+	//Setzt die ID des Kontaktes auf einen bestimmten Wert
+	//@Param Neue ID des Kontaktes
 	public void setId(int id) {
 		this.id = id;
+	}
+	
+	//Ändert Farbe des JLabels, wenn neue Nachricht vorhanden
+	//@Param Bei true markiert, bei false Standardfarbe
+	public void setNewMessage(boolean isNewMessage) {
+		color = defaultColor;
+		if(isNewMessage) {
+			color =highlightColor;
+		}
+		repaint();
 	}
 	
 }

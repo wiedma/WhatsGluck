@@ -12,6 +12,7 @@ import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
 
+
 public class Chatfenster extends JFrame{
 
 	private static final long serialVersionUID = 7205969481605274530L;
@@ -25,8 +26,8 @@ public class Chatfenster extends JFrame{
 	
 	public static final int HOEHE = 500;
 	public static final int BREITE = 600;
-	public static final int KONTAKT_BREITE = 100;
-	public static final int KONTAKT_HOEHE = 30;
+	public static final int KONTAKT_BREITE = 150;
+	public static final int KONTAKT_HOEHE = 50;
 	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben";
 	public static final int MAX_WORTLAENGE = 60;
 	
@@ -37,17 +38,27 @@ public class Chatfenster extends JFrame{
 		this.add(rootPanel);
 		
 		//KontaktPanel
-		kontaktPanel = new JPanel();
+		kontaktPanel = new JPanel() {
+			private static final long serialVersionUID = -5282264159280143737L;
+			@Override protected void paintComponent(Graphics g){
+		        super.paintComponent(g);
+		        setBackground(Color.WHITE);
+		        setVisible(true);
+		    }
+		};
 		kontaktPanel.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		for(int i = 0; i < 200; i++) {
 			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
 			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+			if(i < 5) {contact.setNewMessage(true);}
 			kontaktPanel.add(contact);
+			
 		}
 		
 		//KontaktScrollPane
 		kontaktScrollPane = new JScrollPane(kontaktPanel);
+		kontaktScrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		kontaktScrollPane.setPreferredSize(new Dimension(KONTAKT_BREITE + 20, HOEHE));
 		rootPanel.add(kontaktScrollPane, BorderLayout.WEST);
 		
@@ -76,6 +87,7 @@ public class Chatfenster extends JFrame{
 		
 		//NachrichtField
 		nachrichtField = new JTextField(STANDART_SENDE_TEXT, 20);
+		nachrichtField.setPreferredSize(new Dimension( 200, 30 ) );
 		nachrichtField.addFocusListener(new FocusListener() {
 			@Override
 			public void focusGained(FocusEvent e) {
@@ -103,6 +115,9 @@ public class Chatfenster extends JFrame{
 		
 		//SendeButton
 		sendeButton = new JButton("Senden");
+		sendeButton.setForeground(Color.WHITE);
+		sendeButton.setBackground(new Color(91, 170, 255));
+		sendeButton.setFont(new Font("Verdana", Font.BOLD, 12));
 		sendeButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {

@@ -18,6 +18,9 @@ public class Chatfenster extends JFrame{
 	private static final long serialVersionUID = 7205969481605274530L;
 	
 	private JPanel rootPanel, kontaktPanel, chatPanel, sendePanel;
+	private JMenuBar menuBar;
+	private JMenu[] menu;
+	private JMenuItem[][] menuItem;
 	private JScrollPane kontaktScrollPane, chatScrollPane;
 	private JTextPane chatPane;
 	private JTextField nachrichtField;
@@ -29,9 +32,27 @@ public class Chatfenster extends JFrame{
 	public static final int KONTAKT_BREITE = 150;
 	public static final int KONTAKT_HOEHE = 50;
 	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben";
-	public static final int MAX_WORTLAENGE = 60;
+	public static final int MAX_WORTLAENGE = 50;
 	
 	public Chatfenster() {
+		//TODO: Menu Bar mit Kontaktverwalter
+		//MenuBar
+		menuBar = new JMenuBar();
+		menu = new JMenu[2];
+		menuItem = new JMenuItem[2][2];
+		
+		menu[0] = new JMenu("Datei");
+		menuItem[0][0] = new JMenuItem("Einstellungen");
+		menu[0].add(menuItem[0][0]);
+		menuBar.add(menu[0]);
+		
+		menu[1] = new JMenu("Bearbeiten");
+		menuItem[1][0] = new JMenuItem("Kontakte verwalten");
+		menu[1].add(menuItem[1][0]);
+		menuBar.add(menu[1]);
+		
+		this.setJMenuBar(menuBar);
+		
 		//RootPanel 
 		rootPanel = new JPanel();
 		rootPanel.setLayout(new BorderLayout());
@@ -105,7 +126,7 @@ public class Chatfenster extends JFrame{
 		});
 		nachrichtField.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke(java.awt.event.KeyEvent.VK_ENTER,0,false), "EnterPressed");
 		nachrichtField.getActionMap().put("EnterPressed", new javax.swing.AbstractAction(){
-			private static final long serialVersionUID = -5365806399137704002L;
+			public static final long serialVersionUID = -5365806399137704002L;
 				public void actionPerformed(ActionEvent e) {
 					neueNachrichtSenden();
 					nachrichtField.setText("");;

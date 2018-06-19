@@ -11,7 +11,7 @@ import javax.swing.JTextArea;
 
 public class Kontakt extends JPanel {
 	
-	private static final long serialVersionUID = -3266678289400497661L;
+	public static final long serialVersionUID = -3266678289400497661L;
 	private static final Color defaultColor = new Color(91, 170, 255);
 	private static final Color highlightColor = new Color(81, 224, 71);
 	private static final String imagePath = "resources\\contactIcon.png";

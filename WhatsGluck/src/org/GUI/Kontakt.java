@@ -29,6 +29,15 @@ public class Kontakt extends JPanel {
 		show();
 	}
 	
+	public Kontakt(String importString){
+		String[] components = importString.split("\n");
+		id = Integer.parseInt(components[0].substring(4));
+		contactName = components[1].substring(6);
+		ipAdress = components[2].substring(4);
+		color = defaultColor;
+		show();
+	}
+	
     @Override protected void paintComponent(Graphics g){
         super.paintComponent(g);
         setBackground(color);
@@ -86,6 +95,15 @@ public class Kontakt extends JPanel {
 			color =highlightColor;
 		}
 		repaint();
+	}
+	
+	@Override
+	public String toString(){
+		String s = "";
+		s+="ID: " + id + "\n";
+		s+="NAME: " + contactName + "\n";
+		s+="IP: " + ipAdress + "\n";
+		return s;
 	}
 	
 }

@@ -29,7 +29,7 @@ public class Chatfenster extends JFrame{
 	public static final int KONTAKT_BREITE = 150;
 	public static final int KONTAKT_HOEHE = 50;
 	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben";
-	public static final int MAX_WORTLAENGE = 60;
+	public static final int MAX_WORTLAENGE = 30;
 	
 	public Chatfenster() {
 		//RootPanel 

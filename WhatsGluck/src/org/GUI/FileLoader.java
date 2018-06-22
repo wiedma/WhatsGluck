@@ -9,6 +9,7 @@ public final class FileLoader {
 	private FileLoader(){}
 	
 	public static void kontakteExportieren(Kontakt[] kontakte){
+		System.out.println("Export...");
 		File kontaktFile = new File("Kontakte.txt");
 		PrintWriter out;
 		//Erzeuge neue Datei

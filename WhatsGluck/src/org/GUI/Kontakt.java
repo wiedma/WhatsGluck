@@ -19,6 +19,9 @@ public class Kontakt extends JPanel {
 	private ImageIcon profileImage = new ImageIcon(imagePath,"profileImage");
 	private int id;
 	private Color color;
+	
+	private JPanel contentPanel;
+	private JTextArea contactNameField, ipAdressField;
 
 	
 	public Kontakt(String contactName, String ipAdress, int id){
@@ -26,16 +29,48 @@ public class Kontakt extends JPanel {
 		this.ipAdress = ipAdress;
 		this.color = defaultColor;
 		this.setId(id);
-		show();
+		this.setLayout(new BorderLayout());
+		this.add(new JLabel(profileImage), BorderLayout.WEST);
+		
+		//contentPanel
+		contentPanel = new JPanel();
+		contentPanel.setVisible(true);
+		contentPanel.setLayout(new BorderLayout());
+		this.add(contentPanel, BorderLayout.CENTER);
+		
+		//contactNameField
+		contactNameField = new JTextArea("\n  "+contactName);
+		contactNameField.setOpaque(false);
+		contactNameField.setFont(new Font("Verdana", Font.BOLD, 12));
+		contactNameField.setForeground(Color.BLACK);
+		contactNameField.setEditable(false);
+		contentPanel.add(contactNameField, BorderLayout.CENTER);
+		
+		//ipAdressField
+		ipAdressField = new JTextArea("IP: "+ipAdress);
+		ipAdressField.setOpaque(false);
+		ipAdressField.setFont(new Font("Monospaced", Font.PLAIN, 8));
+		ipAdressField.setForeground(Color.WHITE);
+		ipAdressField.setEditable(false);
+		contentPanel.add(ipAdressField, BorderLayout.SOUTH);
+		
+		contentPanel.setOpaque(false);
+		this.setOpaque(true);
 	}
 	
 	public Kontakt(String importString){
+		
+		this(importStringSelector(importString, 0), importStringSelector(importString, 1), Integer.parseInt(importStringSelector(importString, 2)));
+	}
+	
+	private static String importStringSelector(String importString, int item) {
 		String[] components = importString.split("//");
-		id = Integer.parseInt(components[0].substring(4));
-		contactName = components[1].substring(6);
-		ipAdress = components[2].substring(4);
-		color = defaultColor;
-		show();
+		switch(item) {
+		case 0: return components[1].substring(6);
+		case 1: return components[2].substring(4);
+		case 2: return components[0].substring(4);
+		default: return "";
+		}
 	}
 	
     @Override protected void paintComponent(Graphics g){
@@ -45,33 +80,7 @@ public class Kontakt extends JPanel {
     }
 	
 	public void show(){
-		this.setLayout(new BorderLayout());
-		this.add(new JLabel(profileImage), BorderLayout.WEST);
 		
-		//contentPanel
-		JPanel contentPanel = new JPanel();
-		contentPanel.setVisible(true);
-		contentPanel.setLayout(new BorderLayout());
-		this.add(contentPanel, BorderLayout.CENTER);
-		
-		//contactNameField
-		JTextArea contactNameField = new JTextArea("\n  "+contactName);
-		contactNameField.setOpaque(false);
-		contactNameField.setFont(new Font("Verdana", Font.BOLD, 12));
-		contactNameField.setForeground(Color.BLACK);
-		contactNameField.setEditable(false);
-		contentPanel.add(contactNameField, BorderLayout.CENTER);
-		
-		//ipAdressField
-		JTextArea ipAdressField = new JTextArea("IP: "+ipAdress);
-		ipAdressField.setOpaque(false);
-		ipAdressField.setFont(new Font("Monospaced", Font.PLAIN, 8));
-		ipAdressField.setForeground(Color.WHITE);
-		ipAdressField.setEditable(false);
-		contentPanel.add(ipAdressField, BorderLayout.SOUTH);
-		
-		contentPanel.setOpaque(false);
-		this.setOpaque(true);
 		
 	}
 
@@ -97,6 +106,20 @@ public class Kontakt extends JPanel {
 	//@Param Neuer Name des Kontaktes
 	public void setContactName(String contactName) {
 		this.contactName = contactName;
+		contactNameField.setText("\n  "+contactName);
+	}
+	
+	//Gibt die IP-Adresse des Kontaktes zurück
+	//@Return IP-Adresse des Kontaktes
+	public String getContactIP() {
+		return ipAdress;
+	}
+
+	//Setzt die IP-Adresse des Kontaktes auf einen bestimmten Wert
+	//@Param Neue IP-Adresse des Kontaktes
+	public void setContactIP(String ipAdress) {
+		this.ipAdress = ipAdress;
+		ipAdressField.setText("IP: "+ipAdress);
 	}
 	
 	//Ändert Farbe des JLabels, wenn neue Nachricht vorhanden

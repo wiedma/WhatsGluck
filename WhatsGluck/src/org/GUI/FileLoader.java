@@ -50,7 +50,7 @@ public final class FileLoader {
 			in.close();
 			return kontaktList.toArray(new Kontakt[0]);
 		} catch(IOException e){
-			JOptionPane.showMessageDialog(null, "Die Datei konnte nicht gelesen werden");
+			JOptionPane.showMessageDialog(null, "Die Kontakt-Datei konnte nicht gelesen werden");
 			return null;
 		}
 		

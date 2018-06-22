@@ -5,10 +5,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.ArrayList;
-
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -37,27 +38,60 @@ public class Chatfenster extends JFrame{
 	public static final int BREITE = 600;
 	public static final int KONTAKT_BREITE = 150;
 	public static final int KONTAKT_HOEHE = 50;
-	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben";
+	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben...";
 	public static final int MAX_WORTLAENGE = 30;
 	
 	public Chatfenster() {
-		//TODO: Menu Bar mit Kontaktverwalter
+		
 		//MenuBar
 		menuBar = new JMenuBar();
+		menuBar.setBackground(Color.WHITE);
 		menu = new JMenu[2];
 		menuItem = new JMenuItem[2][3];
 		
+		ActionListener actionMenu = new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				switch(arg0.getActionCommand()) {
+				case "Kontakt bearbeiten": kontaktFensterBearbeiten(); break;
+				case "Kontakt löschen": kontaktFensterLoeschen(); break;
+				case "Kontakt hinzufügen": kontaktFensterHinzufuegen(); break;
+				default: System.out.println("Error: Could not find source."); break;
+				}
+			}
+		};
+		
 		menu[0] = new JMenu("Datei");
 		menuItem[0][0] = new JMenuItem("Einstellungen");
-		menuItem[0][1] = new JMenuItem("Beenden");
+		menuItem[0][0].setBackground(Color.WHITE);
+		menuItem[0][0].setOpaque(true);
+		menuItem[0][1] = new JMenuItem("Speichern");
+		menuItem[0][1].setBackground(Color.WHITE);
+		menuItem[0][1].setOpaque(true);
+		menuItem[0][2] = new JMenuItem("Beenden");
+		menuItem[0][2].setBackground(Color.WHITE);
+		menuItem[0][2].setOpaque(true);
 		menu[0].add(menuItem[0][0]);
 		menu[0].add(menuItem[0][1]);
+		menu[0].add(menuItem[0][2]);
 		menuBar.add(menu[0]);
 		
 		menu[1] = new JMenu("Kontakte");
 		menuItem[1][0] = new JMenuItem("Kontakt hinzufügen");
+		menuItem[1][0].setActionCommand("Kontakt hinzufügen");
+		menuItem[1][0].setBackground(Color.WHITE);
+		menuItem[1][0].setOpaque(true);
+		menuItem[1][0].addActionListener(actionMenu);
 		menuItem[1][1] = new JMenuItem("Kontakt löschen");
+		menuItem[1][1].setActionCommand("Kontakt löschen");
+		menuItem[1][1].setBackground(Color.WHITE);
+		menuItem[1][1].setOpaque(true);
+		menuItem[1][1].addActionListener(actionMenu);
 		menuItem[1][2] = new JMenuItem("Kontakt bearbeiten");
+		menuItem[1][2].setActionCommand("Kontakt bearbeiten");
+		menuItem[1][2].setBackground(Color.WHITE);
+		menuItem[1][2].setOpaque(true);
+		menuItem[1][2].addActionListener(actionMenu);
 		menu[1].add(menuItem[1][0]);
 		menu[1].add(menuItem[1][1]);
 		menu[1].add(menuItem[1][2]);
@@ -89,13 +123,13 @@ public class Chatfenster extends JFrame{
 //			kontaktHinzufuegen(contact);
 //		}
 		
-		importiere();
-		
 		//KontaktScrollPane
 		kontaktScrollPane = new JScrollPane(kontaktPanel);
 		kontaktScrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		kontaktScrollPane.setPreferredSize(new Dimension(KONTAKT_BREITE + 20, HOEHE));
 		rootPanel.add(kontaktScrollPane, BorderLayout.WEST);
+		
+		importiere();
 		
 		//ChatPanel
 		chatPanel = new JPanel();
@@ -207,9 +241,6 @@ public class Chatfenster extends JFrame{
 			}
 		});
 		this.setVisible(true);
-		
-		//TODO:
-		kontaktFensterHinzufuegen();
 	}
 	
 	//TODO Im Moment nur Platzhalter für eine Sende-Methode, damit Button/Enter-Taste dieselbe Aktion ausführt
@@ -261,66 +292,120 @@ public class Chatfenster extends JFrame{
 		this.repaint();
 	}
 	
+	//Zeigt das Dialog-Fenster zum Hinzufügen eines Kontaktes an
 	public void kontaktFensterHinzufuegen(){
-		
 		JTextField name = new JTextField();
 		JTextField ip = new JTextField();
-                Object[] message = {"Name:", name, 
-        		"IP-Adresse:", ip};
+        Object[] message = {"Name:", name, "IP-Adresse:", ip};
+        Object[] options = {"Hinzufügen", "Abbrechen"};
+        int option = 0;
 
-                JOptionPane pane = new JOptionPane( message, 
-                                                JOptionPane.PLAIN_MESSAGE, 
-                                                JOptionPane.OK_CANCEL_OPTION);
-                pane.createDialog(this, "Kontakt hinzufügen").setVisible(true);
-		/*JPanel kfPanel = new JPanel();
-		kfPanel.setLayout(new BorderLayout());
-		
+        while(option == 0 && name.getText().length() == 0 && ip.getText().length() == 0)
+        	option = JOptionPane.showOptionDialog(this, message, "Kontakt hinzufügen...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        if(option == 0) kontaktHinzufuegen(new Kontakt(name.getText(), ip.getText(), kontakte.size()));
+	}
+	
+	//Zeigt das Dialog-Fenster zum Löschen eines Kontaktes an
+	public void kontaktFensterLoeschen() {
 		String[] kontaktNamen = new String[kontakte.size()];
 		for(int i = 0; i < kontaktNamen.length; i++){ kontaktNamen[i] = kontakte.get(i).getContactName(); }
 		JList<String> liste = new JList<String>(kontaktNamen);
+		liste.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		JScrollPane listScrollPane = new JScrollPane(liste);
+		listScrollPane.setViewportView(liste);
+		listScrollPane.setMaximumSize(new Dimension(200,200));
+		Object[] message = {listScrollPane, "\nHinweis: Alle Daten zu diesem Kontakt werden gelöscht!\n"};
+		Object[] options = {"Löschen", "Abbrechen"};
+		int option = 0;
+		
+		while(option == 0 && liste.getSelectedIndices().length == 0)
+			option = JOptionPane.showOptionDialog(this, message, "Kontakt löschen...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+		
+		if(option == 0) {
+			int[] indices = liste.getSelectedIndices();
+			for(int index : indices) kontaktEntfernen(kontakte.get(index));
+		}
+	}
+	
+	//Zeigt das Dialog-Fenster zum Bearbeiten eines Kontaktes an
+	public void kontaktFensterBearbeiten() {
+		JTextField name = new JTextField();
+		JTextField ip = new JTextField();
+		String[] kontaktNamen = new String[kontakte.size()];
+		for(int i = 0; i < kontaktNamen.length; i++){ kontaktNamen[i] = kontakte.get(i).getContactName(); }
+		JList<String> liste = new JList<String>(kontaktNamen);
+		liste.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+		liste.addMouseListener(new MouseListener() {
+			@Override
+			public void mouseClicked(MouseEvent arg0) {
+				name.setText(liste.getSelectedValue());
+				ip.setText(liste.getSelectedValue());
+			}
+			@Override
+			public void mouseEntered(MouseEvent arg0) {}
+			@Override
+			public void mouseExited(MouseEvent arg0) {}
+			@Override
+			public void mousePressed(MouseEvent arg0) {}
+			@Override
+			public void mouseReleased(MouseEvent arg0) {}
+		});
 		JScrollPane listScrollPane = new JScrollPane(liste);
 		listScrollPane.setViewportView(liste);
 		listScrollPane.setMaximumSize(new Dimension(200,200));
 		
-		kfPanel.add(listScrollPane, BorderLayout.CENTER);
+		JCheckBox box = new JCheckBox("Chatverlauf übernehmen");
+		box.setSelected(true);
+        Object[] message = {listScrollPane, "Name:", name, "IP-Adresse:", ip, box};
+        Object[] options = {"Ändern", "Fertig"};
 		
-		JPanel buttonHolder = new JPanel();
-		buttonHolder.setLayout(new BorderLayout());
-		JPanel buttonPanel = new JPanel();
-		buttonPanel.setLayout(new GridLayout(0, 1, 0, 2));
-		JButton hinzufügen = new JButton("Kontakt hinzufügen");
-		hinzufügen.setPreferredSize(new Dimension(10, 10));
-		buttonPanel.add(hinzufügen);
-		JButton bearbeiten = new JButton("Kontakt bearbeiten");
-		bearbeiten.setPreferredSize(new Dimension(10, 10));
-		buttonPanel.add(bearbeiten);
-		JButton löschen = new JButton("Kontakt löschen");
-		löschen.setPreferredSize(new Dimension(10, 10));
-		buttonPanel.add(löschen);
-		buttonHolder.add(buttonPanel, BorderLayout.CENTER);
+		int option = JOptionPane.showOptionDialog(this, message, "Kontakt bearbeiten...", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 		
-		kfPanel.add(buttonPanel, BorderLayout.EAST);
-		
-		int eingabe =  JOptionPane.showOptionDialog(
-				this, kfPanel,"Kontakte",JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,null, null, null);
-		
-		if(eingabe == 1){
-			
-		}else{
-			
-		}*/
+		if(option == 0) {
+			int index = liste.getSelectedIndex();
+			if(index >= 0 && ip.getText().length() > 0 && name.getText().length() > 0) {
+				kontaktBearbeiten(kontakte.get(index), name.getText(), ip.getText(), box.isSelected());
+			}
+			kontaktFensterBearbeiten();
+			kontaktScrollPane.updateUI();
+			rootPanel.repaint();
+		}
 	}
 	
-	
+	//Fügt einen Kontakt hinzu
+	//@Param kontakt der neue Kontakt
 	public void kontaktHinzufuegen(Kontakt kontakt){
 		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
 		kontakte.add(kontakt);
+		kontakt.setId(kontakte.size());
 		kontaktPanel.add(kontakt);
+		kontaktScrollPane.updateUI();
+		rootPanel.repaint();
 	}
 	
+	//Löscht einen Kontakt
+	//@Param kontakt der zu löschende Kontakt
 	public void kontaktEntfernen(Kontakt kontakt){
 		kontakte.remove(kontakt);
 		kontaktPanel.remove(kontakt);
+		for(int index = 0; index < kontakte.size(); index++) kontakte.get(index).setId(index);
+		kontaktScrollPane.updateUI();
+		rootPanel.repaint();
+	}
+	
+	//Bearbeitet einen Kontakt (vgl. kontaktFensterBearbeiten() )
+	//@Param kontakt der zu bearbeitende Kontakt
+	//@Param name der neue Name des Kontaktes
+	//@Param ip die neue IP-Adresse des Kontaktes
+	//@Param chatBeibehalten ob der Chatverlauf beibehalten werden soll
+	public void kontaktBearbeiten(Kontakt kontakt, String name, String ip, boolean chatBeibehalten) {
+		if(chatBeibehalten) {
+			kontakt.setContactName(name);
+			kontakt.setContactIP(ip);
+		}else {
+			kontaktEntfernen(kontakt);
+			kontaktHinzufuegen(new Kontakt(name, ip, kontakte.size()));
+		}
 	}
 	
 	public Kontakt[] kontakteGeben(){

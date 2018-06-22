@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -18,6 +20,7 @@ public class Chatfenster extends JFrame{
 	private static final long serialVersionUID = 7205969481605274530L;
 	
 	private JPanel rootPanel, kontaktPanel, chatPanel, sendePanel;
+	private ArrayList<Kontakt> kontakte;
 	private JMenuBar menuBar;
 	private JMenu[] menu;
 	private JMenuItem[][] menuItem;
@@ -43,7 +46,9 @@ public class Chatfenster extends JFrame{
 		
 		menu[0] = new JMenu("Datei");
 		menuItem[0][0] = new JMenuItem("Einstellungen");
+		menuItem[0][1] = new JMenuItem("Beenden");
 		menu[0].add(menuItem[0][0]);
+		menu[0].add(menuItem[0][1]);
 		menuBar.add(menu[0]);
 		
 		menu[1] = new JMenu("Bearbeiten");
@@ -69,10 +74,12 @@ public class Chatfenster extends JFrame{
 		};
 		kontaktPanel.setLayout(new GridLayout(0, 1, 0, 2));
 		
+		kontakte = new ArrayList<Kontakt>();
 		for(int i = 0; i < 200; i++) {
 			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
 			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
 			if(i < 5) {contact.setNewMessage(true);}
+			kontakte.add(contact);
 			kontaktPanel.add(contact);
 			
 		}
@@ -152,6 +159,9 @@ public class Chatfenster extends JFrame{
 		this.setTitle("WhatsGluck");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
 		this.setVisible(true);
+		
+		//TODO:
+		kontaktFensterAnzeigen();
 	}
 	
 	//TODO Im Moment nur Platzhalter für eine Sende-Methode, damit Button/Enter-Taste dieselbe Aktion ausführt
@@ -202,4 +212,32 @@ public class Chatfenster extends JFrame{
 		this.revalidate();
 		this.repaint();
 	}
+	
+	public void kontaktFensterAnzeigen(){
+		JPanel kfPanel = new JPanel();
+		kfPanel.setLayout(new BorderLayout());
+		
+		String[] kontaktNamen = new String[kontakte.size()];
+		for(int i = 0; i < kontaktNamen.length; i++){ kontaktNamen[i] = kontakte.get(i).getContactName(); }
+		JList<String> liste = new JList<String>(kontaktNamen);
+		JScrollPane listScrollPane = new JScrollPane(liste);
+		listScrollPane.setViewportView(liste);
+		listScrollPane.setMaximumSize(new Dimension(200,200));
+		
+		kfPanel.add(listScrollPane, BorderLayout.CENTER);
+		
+		JButton hinzufügen = new JButton("Kontakt hinzufügen");
+		JButton bearbeiten = new JButton("Kontakt bearbeiten");
+		JButton löschen = new JButton("Kontakt löschen");
+		
+		String eingabe = (String) JOptionPane.showInputDialog(
+				null, kfPanel, JOptionPane.OK_CANCEL_OPTION);
+		
+		if(eingabe == ""){
+			
+		}else{
+			
+		}
+	}
+	
 }

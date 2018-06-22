@@ -87,6 +87,18 @@ public class Kontakt extends JPanel {
 		this.id = id;
 	}
 	
+	//Gibt den Namen des Kontaktes zurück
+	//@Return Name des Kontaktes
+	public String getContactName() {
+		return contactName;
+	}
+
+	//Setzt den Namen des Kontaktes auf einen bestimmten Wert
+	//@Param Neuer Name des Kontaktes
+	public void setContactName(String contactName) {
+		this.contactName = contactName;
+	}
+	
 	//Ändert Farbe des JLabels, wenn neue Nachricht vorhanden
 	//@Param Bei true markiert, bei false Standardfarbe
 	public void setNewMessage(boolean isNewMessage) {

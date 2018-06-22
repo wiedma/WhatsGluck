@@ -44,7 +44,7 @@ public class Chatfenster extends JFrame{
 		//MenuBar
 		menuBar = new JMenuBar();
 		menu = new JMenu[2];
-		menuItem = new JMenuItem[2][2];
+		menuItem = new JMenuItem[2][3];
 		
 		menu[0] = new JMenu("Datei");
 		menuItem[0][0] = new JMenuItem("Einstellungen");
@@ -53,9 +53,13 @@ public class Chatfenster extends JFrame{
 		menu[0].add(menuItem[0][1]);
 		menuBar.add(menu[0]);
 		
-		menu[1] = new JMenu("Bearbeiten");
-		menuItem[1][0] = new JMenuItem("Kontakte verwalten");
+		menu[1] = new JMenu("Kontakte");
+		menuItem[1][0] = new JMenuItem("Kontakt hinzufügen");
+		menuItem[1][1] = new JMenuItem("Kontakt löschen");
+		menuItem[1][2] = new JMenuItem("Kontakt bearbeiten");
 		menu[1].add(menuItem[1][0]);
+		menu[1].add(menuItem[1][1]);
+		menu[1].add(menuItem[1][2]);
 		menuBar.add(menu[1]);
 		
 		this.setJMenuBar(menuBar);
@@ -288,6 +292,11 @@ public class Chatfenster extends JFrame{
 		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
 		kontakte.add(kontakt);
 		kontaktPanel.add(kontakt);
+	}
+	
+	public void kontaktEntfernen(Kontakt kontakt){
+		kontakte.remove(kontakt);
+		kontaktPanel.remove(kontakt);
 	}
 	
 	public Kontakt[] kontakteGeben(){

@@ -5,6 +5,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.awt.event.WindowEvent;
+import java.awt.event.WindowListener;
 import java.util.ArrayList;
 
 import javax.swing.*;
@@ -43,7 +45,7 @@ public class Chatfenster extends JFrame{
 		//MenuBar
 		menuBar = new JMenuBar();
 		menu = new JMenu[2];
-		menuItem = new JMenuItem[2][2];
+		menuItem = new JMenuItem[2][3];
 		
 		menu[0] = new JMenu("Datei");
 		menuItem[0][0] = new JMenuItem("Einstellungen");
@@ -52,9 +54,13 @@ public class Chatfenster extends JFrame{
 		menu[0].add(menuItem[0][1]);
 		menuBar.add(menu[0]);
 		
-		menu[1] = new JMenu("Bearbeiten");
-		menuItem[1][0] = new JMenuItem("Kontakte verwalten");
+		menu[1] = new JMenu("Kontakte");
+		menuItem[1][0] = new JMenuItem("Kontakt hinzufügen");
+		menuItem[1][1] = new JMenuItem("Kontakt löschen");
+		menuItem[1][2] = new JMenuItem("Kontakt bearbeiten");
 		menu[1].add(menuItem[1][0]);
+		menu[1].add(menuItem[1][1]);
+		menu[1].add(menuItem[1][2]);
 		menuBar.add(menu[1]);
 		
 		this.setJMenuBar(menuBar);
@@ -159,6 +165,47 @@ public class Chatfenster extends JFrame{
 		this.setSize(BREITE, HOEHE);
 		this.setTitle("WhatsGluck");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		//WindowListener exportiert bei Schließung des Fensters
+		this.addWindowListener(new WindowListener(){
+			public void windowClosing(WindowEvent e){
+				exportiere();
+			}
+
+			@Override
+			public void windowOpened(WindowEvent e) {
+
+			}
+
+			@Override
+			public void windowClosed(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowIconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeiconified(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowActivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void windowDeactivated(WindowEvent e) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
 		this.setVisible(true);
 		
 		//TODO:
@@ -269,6 +316,11 @@ public class Chatfenster extends JFrame{
 		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
 		kontakte.add(kontakt);
 		kontaktPanel.add(kontakt);
+	}
+	
+	public void kontaktEntfernen(Kontakt kontakt){
+		kontakte.remove(kontakt);
+		kontaktPanel.remove(kontakt);
 	}
 	
 	public Kontakt[] kontakteGeben(){

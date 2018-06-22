@@ -75,14 +75,14 @@ public class Chatfenster extends JFrame{
 		kontaktPanel.setLayout(new GridLayout(0, 1, 0, 2));
 		
 		kontakte = new ArrayList<Kontakt>();
-		for(int i = 0; i < 200; i++) {
-			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
-			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
-			if(i < 5) {contact.setNewMessage(true);}
-			kontakte.add(contact);
-			kontaktPanel.add(contact);
-			
-		}
+//		for(int i = 0; i < 100; i++) {
+//			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
+//			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+//			if(i < 5) {contact.setNewMessage(true);}
+//			kontaktHinzufuegen(contact);
+//		}
+		
+		importiere();
 		
 		//KontaktScrollPane
 		kontaktScrollPane = new JScrollPane(kontaktPanel);
@@ -240,4 +240,24 @@ public class Chatfenster extends JFrame{
 		}
 	}
 	
+	
+	public void kontaktHinzufuegen(Kontakt kontakt){
+		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+		kontakte.add(kontakt);
+		kontaktPanel.add(kontakt);
+	}
+	
+	public Kontakt[] kontakteGeben(){
+		return kontakte.toArray(new Kontakt[0]);
+	}
+	
+	public void exportiere(){
+		FileLoader.kontakteExportieren(kontakte.toArray(new Kontakt[0]));
+	}
+	
+	public void importiere(){
+		for(Kontakt kontakt : FileLoader.kontakteImportieren()){
+			kontaktHinzufuegen(kontakt);
+		}
+	}
 }

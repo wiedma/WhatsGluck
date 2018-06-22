@@ -30,7 +30,7 @@ public class Kontakt extends JPanel {
 	}
 	
 	public Kontakt(String importString){
-		String[] components = importString.split("\n");
+		String[] components = importString.split("//");
 		id = Integer.parseInt(components[0].substring(4));
 		contactName = components[1].substring(6);
 		ipAdress = components[2].substring(4);
@@ -100,9 +100,9 @@ public class Kontakt extends JPanel {
 	@Override
 	public String toString(){
 		String s = "";
-		s+="ID: " + id + "\n";
-		s+="NAME: " + contactName + "\n";
-		s+="IP: " + ipAdress + "\n";
+		s+="ID: " + id + "//";
+		s+="NAME: " + contactName + "//";
+		s+="IP: " + ipAdress + "//";
 		return s;
 	}
 	

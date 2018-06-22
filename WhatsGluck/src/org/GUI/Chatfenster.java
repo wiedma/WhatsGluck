@@ -4,6 +4,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
 import java.awt.event.FocusListener;
+import java.util.ArrayList;
+
 import javax.swing.*;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
@@ -26,6 +28,7 @@ public class Chatfenster extends JFrame{
 	private JTextField nachrichtField;
 	private JButton sendeButton;
 	private StyleContext context;
+	private ArrayList<Kontakt> kontakte;
 	
 	public static final int HOEHE = 500;
 	public static final int BREITE = 600;
@@ -59,6 +62,7 @@ public class Chatfenster extends JFrame{
 		this.add(rootPanel);
 		
 		//KontaktPanel
+		kontakte = new ArrayList<Kontakt>();
 		kontaktPanel = new JPanel() {
 			private static final long serialVersionUID = -5282264159280143737L;
 			@Override protected void paintComponent(Graphics g){
@@ -69,13 +73,14 @@ public class Chatfenster extends JFrame{
 		};
 		kontaktPanel.setLayout(new GridLayout(0, 1, 0, 2));
 		
-		for(int i = 0; i < 200; i++) {
-			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
-			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
-			if(i < 5) {contact.setNewMessage(true);}
-			kontaktPanel.add(contact);
-			
-		}
+//		for(int i = 0; i < 100; i++) {
+//			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
+//			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+//			if(i < 5) {contact.setNewMessage(true);}
+//			kontaktHinzufuegen(contact);
+//		}
+		
+		importiere();
 		
 		//KontaktScrollPane
 		kontaktScrollPane = new JScrollPane(kontaktPanel);
@@ -201,5 +206,25 @@ public class Chatfenster extends JFrame{
 		
 		this.revalidate();
 		this.repaint();
+	}
+	
+	public void kontaktHinzufuegen(Kontakt kontakt){
+		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+		kontakte.add(kontakt);
+		kontaktPanel.add(kontakt);
+	}
+	
+	public Kontakt[] kontakteGeben(){
+		return kontakte.toArray(new Kontakt[0]);
+	}
+	
+	public void exportiere(){
+		FileLoader.kontakteExportieren(kontakte.toArray(new Kontakt[0]));
+	}
+	
+	public void importiere(){
+		for(Kontakt kontakt : FileLoader.kontakteImportieren()){
+			kontaktHinzufuegen(kontakt);
+		}
 	}
 }

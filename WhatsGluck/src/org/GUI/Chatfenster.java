@@ -1,4 +1,5 @@
 package org.GUI;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -161,7 +162,7 @@ public class Chatfenster extends JFrame{
 		this.setVisible(true);
 		
 		//TODO:
-		kontaktFensterAnzeigen();
+		kontaktFensterHinzufuegen();
 	}
 	
 	//TODO Im Moment nur Platzhalter für eine Sende-Methode, damit Button/Enter-Taste dieselbe Aktion ausführt
@@ -213,8 +214,18 @@ public class Chatfenster extends JFrame{
 		this.repaint();
 	}
 	
-	public void kontaktFensterAnzeigen(){
-		JPanel kfPanel = new JPanel();
+	public void kontaktFensterHinzufuegen(){
+		
+		JTextField name = new JTextField();
+		JTextField ip = new JTextField();
+                Object[] message = {"Name:", name, 
+        		"IP-Adresse:", ip};
+
+                JOptionPane pane = new JOptionPane( message, 
+                                                JOptionPane.PLAIN_MESSAGE, 
+                                                JOptionPane.OK_CANCEL_OPTION);
+                pane.createDialog(this, "Kontakt hinzufügen").setVisible(true);
+		/*JPanel kfPanel = new JPanel();
 		kfPanel.setLayout(new BorderLayout());
 		
 		String[] kontaktNamen = new String[kontakte.size()];
@@ -226,18 +237,31 @@ public class Chatfenster extends JFrame{
 		
 		kfPanel.add(listScrollPane, BorderLayout.CENTER);
 		
+		JPanel buttonHolder = new JPanel();
+		buttonHolder.setLayout(new BorderLayout());
+		JPanel buttonPanel = new JPanel();
+		buttonPanel.setLayout(new GridLayout(0, 1, 0, 2));
 		JButton hinzufügen = new JButton("Kontakt hinzufügen");
+		hinzufügen.setPreferredSize(new Dimension(10, 10));
+		buttonPanel.add(hinzufügen);
 		JButton bearbeiten = new JButton("Kontakt bearbeiten");
+		bearbeiten.setPreferredSize(new Dimension(10, 10));
+		buttonPanel.add(bearbeiten);
 		JButton löschen = new JButton("Kontakt löschen");
+		löschen.setPreferredSize(new Dimension(10, 10));
+		buttonPanel.add(löschen);
+		buttonHolder.add(buttonPanel, BorderLayout.CENTER);
 		
-		String eingabe = (String) JOptionPane.showInputDialog(
-				null, kfPanel, JOptionPane.OK_CANCEL_OPTION);
+		kfPanel.add(buttonPanel, BorderLayout.EAST);
 		
-		if(eingabe == ""){
+		int eingabe =  JOptionPane.showOptionDialog(
+				this, kfPanel,"Kontakte",JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE,null, null, null);
+		
+		if(eingabe == 1){
 			
 		}else{
 			
-		}
+		}*/
 	}
 	
 	

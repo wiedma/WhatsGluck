@@ -26,7 +26,7 @@ public final class FileLoader {
 		}
 		
 		for(Kontakt kontakt : kontakte){
-			out.print(kontakt.toString());
+			out.print(kontakt.toExportString());
 			out.println();
 		}
 		out.flush();

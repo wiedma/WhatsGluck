@@ -288,6 +288,12 @@ public class Chatfenster extends JFrame{
 			e.printStackTrace();
 		}
 		
+		try {
+			String[] test = doc.getText(0, doc.getLength()).split("\n");	
+		} catch(BadLocationException e) {
+			e.printStackTrace();
+		}
+		
 		this.revalidate();
 		this.repaint();
 	}
@@ -332,14 +338,14 @@ public class Chatfenster extends JFrame{
 		JTextField name = new JTextField();
 		JTextField ip = new JTextField();
 		String[] kontaktNamen = new String[kontakte.size()];
-		for(int i = 0; i < kontaktNamen.length; i++){ kontaktNamen[i] = kontakte.get(i).getContactName(); }
-		JList<String> liste = new JList<String>(kontaktNamen);
+//		for(int i = 0; i < kontaktNamen.length; i++){ kontaktNamen[i] = kontakte.get(i).getContactName(); }
+		JList<Kontakt> liste = new JList<Kontakt>(kontakte.toArray(new Kontakt[0]));
 		liste.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
 		liste.addMouseListener(new MouseListener() {
 			@Override
 			public void mouseClicked(MouseEvent arg0) {
-				name.setText(liste.getSelectedValue());
-				ip.setText(liste.getSelectedValue());
+				name.setText(liste.getSelectedValue().getContactName());
+				ip.setText(liste.getSelectedValue().getContactIP());
 			}
 			@Override
 			public void mouseEntered(MouseEvent arg0) {}

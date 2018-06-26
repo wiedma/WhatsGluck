@@ -132,13 +132,17 @@ public class Kontakt extends JPanel {
 		repaint();
 	}
 	
-	@Override
-	public String toString(){
+	public String toExportString(){
 		String s = "";
 		s+="ID: " + id + "//";
 		s+="NAME: " + contactName + "//";
 		s+="IP: " + ipAdress + "//";
 		return s;
+	}
+	
+	@Override
+	public String toString() {
+		return contactName;
 	}
 	
 }

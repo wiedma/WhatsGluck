@@ -1,0 +1,7 @@
+//ID//1
+//++//Hallo
+//--//Hallo
+//--//Test Blau Rot
+//ID//2
+//++//Wer bist du?
+//++//Ich bin du, du bist ich

@@ -4,17 +4,20 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.util.ArrayList;
+
 import javax.swing.ImageIcon;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
-public class Kontakt extends JPanel {
+public class Kontakt extends JPanel{
 	
 	public static final long serialVersionUID = -3266678289400497661L;
 	private static final Color defaultColor = new Color(91, 170, 255);
 	private static final Color highlightColor = new Color(81, 224, 71);
 	private static final String imagePath = "resources\\contactIcon.png";
+	
 	private String contactName, ipAdress;
 	private ImageIcon profileImage = new ImageIcon(imagePath,"profileImage");
 	private int id;
@@ -22,6 +25,8 @@ public class Kontakt extends JPanel {
 	
 	private JPanel contentPanel;
 	private JTextArea contactNameField, ipAdressField;
+	
+	private ArrayList<Nachricht> nachrichten;
 
 	
 	public Kontakt(String contactName, String ipAdress, int id){
@@ -55,21 +60,26 @@ public class Kontakt extends JPanel {
 		contentPanel.add(ipAdressField, BorderLayout.SOUTH);
 		
 		contentPanel.setOpaque(false);
-		this.setOpaque(true);
+//		this.setOpaque(true);
+		
+		nachrichten = new ArrayList<Nachricht>();
 	}
 	
-	public Kontakt(String importString){
-		
+	public Kontakt(String importString) throws NumberFormatException{
 		this(importStringSelector(importString, 0), importStringSelector(importString, 1), Integer.parseInt(importStringSelector(importString, 2)));
 	}
 	
 	private static String importStringSelector(String importString, int item) {
 		String[] components = importString.split("//");
-		switch(item) {
-		case 0: return components[1].substring(6);
-		case 1: return components[2].substring(4);
-		case 2: return components[0].substring(4);
-		default: return "";
+		try {
+			switch(item) {
+			case 0: return components[1].substring(6);
+			case 1: return components[2].substring(4);
+			case 2: return components[0].substring(4);
+			default: return "";
+			}
+		}catch(Exception e) {
+			return null;
 		}
 	}
 	
@@ -143,6 +153,31 @@ public class Kontakt extends JPanel {
 	@Override
 	public String toString() {
 		return contactName;
+	}
+	
+	public void nachrichtHinzufuegen(String text, boolean vonMir) {
+		nachrichten.add(new Nachricht(text, vonMir));
+	}
+	
+	public String[] nachrichtenExport() {
+		String[] nachrichtenStrings = new String[nachrichten.size()];
+		for(int i = 0; i < nachrichten.size(); i++) {
+			String exportString;
+			Nachricht currentNachricht = nachrichten.get(i);
+			String prefix;
+			if(currentNachricht.istVonMir()) {
+				prefix = "//++//";
+			}else {
+				prefix = "//--//";
+			}
+			exportString = prefix + currentNachricht.textGeben();
+			nachrichtenStrings[i] = exportString;
+		}
+		return nachrichtenStrings;
+	}
+	
+	public Nachricht[] nachrichtenGeben() {
+		return nachrichten.toArray(new Nachricht[0]);
 	}
 	
 }

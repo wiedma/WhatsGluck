@@ -33,6 +33,7 @@ public class Chatfenster extends JFrame{
 	private JTextField nachrichtField;
 	private JButton sendeButton;
 	private StyleContext context;
+	private Kontakt aktiverKontakt;
 	
 	public static final int HOEHE = 500;
 	public static final int BREITE = 600;
@@ -104,6 +105,10 @@ public class Chatfenster extends JFrame{
 		rootPanel.setLayout(new BorderLayout());
 		this.add(rootPanel);
 		
+		//KontaktFlowPanel
+		JPanel kontaktFlowPanel = new JPanel();
+		kontaktFlowPanel.setLayout(new FlowLayout());
+		
 		//KontaktPanel
 		kontaktPanel = new JPanel() {
 			private static final long serialVersionUID = -5282264159280143737L;
@@ -114,22 +119,16 @@ public class Chatfenster extends JFrame{
 		    }
 		};
 		kontaktPanel.setLayout(new GridLayout(0, 1, 0, 2));
+		kontaktFlowPanel.add(kontaktPanel);
 		
 		kontakte = new ArrayList<Kontakt>();
-//		for(int i = 0; i < 100; i++) {
-//			Kontakt contact = new Kontakt("Kontakt " + i, "Kontakt " + i, i);
-//			contact.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
-//			if(i < 5) {contact.setNewMessage(true);}
-//			kontaktHinzufuegen(contact);
-//		}
-		
+
 		//KontaktScrollPane
-		kontaktScrollPane = new JScrollPane(kontaktPanel);
+		kontaktScrollPane = new JScrollPane(kontaktFlowPanel);
 		kontaktScrollPane.getVerticalScrollBar().setUnitIncrement(20);
 		kontaktScrollPane.setPreferredSize(new Dimension(KONTAKT_BREITE + 20, HOEHE));
 		rootPanel.add(kontaktScrollPane, BorderLayout.WEST);
 		
-		importiere();
 		
 		//ChatPanel
 		chatPanel = new JPanel();
@@ -207,54 +206,54 @@ public class Chatfenster extends JFrame{
 
 			@Override
 			public void windowOpened(WindowEvent e) {
-
 			}
 
 			@Override
-			public void windowClosed(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
+			public void windowClosed(WindowEvent e) {	
 			}
 
 			@Override
 			public void windowIconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
 			public void windowDeiconified(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
 			public void windowActivated(WindowEvent e) {
-				// TODO Auto-generated method stub
-				
 			}
 
 			@Override
 			public void windowDeactivated(WindowEvent e) {
-				// TODO Auto-generated method stub
+			}
+		});
+		//Importiere Kontakte und Chatverläufe im GUI-Thread
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				importiere();
 				
+				try {
+					aktiverKontaktSetzen(kontakte.get(0));
+				} catch(IndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
 			}
 		});
 		this.setVisible(true);
 	}
 	
-	//TODO Im Moment nur Platzhalter für eine Sende-Methode, damit Button/Enter-Taste dieselbe Aktion ausführt
-	//Sendet die Nachricht 
 	public void neueNachrichtSenden() {
 		if(!nachrichtField.getText().equals(STANDART_SENDE_TEXT) && !nachrichtField.getText().isEmpty()) {
 			neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
+			aktiverKontakt.nachrichtHinzufuegen(nachrichtField.getText() + '\n', true);
 			nachrichtField.setText(STANDART_SENDE_TEXT);
 		}
 	}
 	
-	//Zeigt eine neue Nachricht in der ChatArea an
-	//@Param nachricht die neue Nachricht
-	//@Param selbst ob man selbst der Absender der Nachricht ist
+	/**Zeigt eine neue Nachricht in der ChatArea an
+	*@Param nachricht die neue Nachricht
+	*@Param selbst ob man selbst der Absender der Nachricht ist*/
 	public void neueNachrichtAnzeigen(String nachricht, boolean selbst) {
 		String[] woerter = nachricht.split(" ");
 		
@@ -288,11 +287,6 @@ public class Chatfenster extends JFrame{
 			e.printStackTrace();
 		}
 		
-		try {
-			String[] test = doc.getText(0, doc.getLength()).split("\n");	
-		} catch(BadLocationException e) {
-			e.printStackTrace();
-		}
 		
 		this.revalidate();
 		this.repaint();
@@ -337,7 +331,6 @@ public class Chatfenster extends JFrame{
 	public void kontaktFensterBearbeiten() {
 		JTextField name = new JTextField();
 		JTextField ip = new JTextField();
-		String[] kontaktNamen = new String[kontakte.size()];
 //		for(int i = 0; i < kontaktNamen.length; i++){ kontaktNamen[i] = kontakte.get(i).getContactName(); }
 		JList<Kontakt> liste = new JList<Kontakt>(kontakte.toArray(new Kontakt[0]));
 		liste.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -382,6 +375,39 @@ public class Chatfenster extends JFrame{
 	//@Param kontakt der neue Kontakt
 	public void kontaktHinzufuegen(Kontakt kontakt){
 		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+		kontakt.setMaximumSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
+		kontakt.addMouseListener(new MouseListener() {
+
+			@Override
+			public void mouseClicked(MouseEvent e) {
+				//Auto-generated method stub
+				aktiverKontaktSetzen(kontakt);
+			}
+
+			@Override
+			public void mousePressed(MouseEvent e) {
+				//Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseReleased(MouseEvent e) {
+				//Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseEntered(MouseEvent e) {
+				//Auto-generated method stub
+				
+			}
+
+			@Override
+			public void mouseExited(MouseEvent e) {
+				//Auto-generated method stub
+			}
+			
+		});
 		kontakte.add(kontakt);
 		kontakt.setId(kontakte.size());
 		kontaktPanel.add(kontakt);
@@ -394,16 +420,16 @@ public class Chatfenster extends JFrame{
 	public void kontaktEntfernen(Kontakt kontakt){
 		kontakte.remove(kontakt);
 		kontaktPanel.remove(kontakt);
-		for(int index = 0; index < kontakte.size(); index++) kontakte.get(index).setId(index);
+		for(int index = 0; index < kontakte.size(); index++) kontakte.get(index).setId(index+1);
 		kontaktScrollPane.updateUI();
 		rootPanel.repaint();
 	}
 	
-	//Bearbeitet einen Kontakt (vgl. kontaktFensterBearbeiten() )
-	//@Param kontakt der zu bearbeitende Kontakt
-	//@Param name der neue Name des Kontaktes
-	//@Param ip die neue IP-Adresse des Kontaktes
-	//@Param chatBeibehalten ob der Chatverlauf beibehalten werden soll
+	/**Bearbeitet einen Kontakt (vgl. kontaktFensterBearbeiten() )
+	*@Param kontakt der zu bearbeitende Kontakt
+	*@Param name der neue Name des Kontaktes
+	*@Param ip die neue IP-Adresse des Kontaktes
+	*@Param chatBeibehalten ob der Chatverlauf beibehalten werden soll*/
 	public void kontaktBearbeiten(Kontakt kontakt, String name, String ip, boolean chatBeibehalten) {
 		if(chatBeibehalten) {
 			kontakt.setContactName(name);
@@ -425,6 +451,14 @@ public class Chatfenster extends JFrame{
 	public void importiere(){
 		for(Kontakt kontakt : FileLoader.kontakteImportieren()){
 			kontaktHinzufuegen(kontakt);
+		}
+	}
+	
+	public void aktiverKontaktSetzen(Kontakt aktiv) {
+		aktiverKontakt = aktiv;
+		chatPane.setText("");
+		for(Nachricht nachricht : aktiverKontakt.nachrichtenGeben()) {
+			neueNachrichtAnzeigen(nachricht.textGeben(), nachricht.istVonMir());
 		}
 	}
 }

@@ -107,6 +107,7 @@ public class Chatfenster extends JFrame{
 		
 		//KontaktFlowPanel
 		JPanel kontaktFlowPanel = new JPanel();
+		//kontaktFlowPanel.setLayout(new FlowLayout(FlowLayout.CENTER,0,0));
 		kontaktFlowPanel.setLayout(new FlowLayout());
 		
 		//KontaktPanel
@@ -272,7 +273,7 @@ public class Chatfenster extends JFrame{
 		
 		if(selbst) {
 			StyleConstants.setAlignment(style, StyleConstants.ALIGN_LEFT);
-			StyleConstants.setForeground(style, Color.red);
+			StyleConstants.setForeground(style, Color.black);
 		}
 		else {
 			StyleConstants.setAlignment(style, StyleConstants.ALIGN_RIGHT);
@@ -376,7 +377,7 @@ public class Chatfenster extends JFrame{
 	public void kontaktHinzufuegen(Kontakt kontakt){
 		kontakt.setPreferredSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
 		kontakt.setMaximumSize(new Dimension(KONTAKT_BREITE, KONTAKT_HOEHE));
-		kontakt.addMouseListener(new MouseListener() {
+		kontakt.addMouseListenerToContact(new MouseListener() {
 
 			@Override
 			public void mouseClicked(MouseEvent e) {

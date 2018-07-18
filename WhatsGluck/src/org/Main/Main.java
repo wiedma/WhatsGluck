@@ -1,7 +1,8 @@
 package org.Main;
-//import java.math.BigInteger;
 import org.GUI.Chatfenster;
-//import org.Security.RsaEncrypt;
+//import java.math.BigInteger;
+//import org.Security.*;
+//import java.security.Key;
 
 
 public class Main {
@@ -9,12 +10,16 @@ public class Main {
 	public static void main(String[] args) {
 		new Chatfenster();
 //		BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
-//		String nachricht = "Hallo Welt!";
-//		String crypto = RsaEncrypt.nachrichtVerschlüsseln(keyPair[1], keyPair[0], nachricht);
-//		String klar = RsaEncrypt.nachrichtEntschlüsseln(keyPair[2], keyPair[0], crypto);
-//		System.out.println(nachricht);
-//		System.out.println(crypto);
-//		System.out.println(klar);
+//		Key AESKey = AESEncrypt.schlüsselErzeugen();
+//		String klar = "JETZT HOL MIR PIZZA ICH HAB SO RICHTIG BOCK DRAUF MAN!";
+//		String verschlüsselt = AESEncrypt.nachrichtVerschlüsseln(AESKey, klar);
+//		String schlüssel = RsaEncrypt.nachrichtVerschlüsseln(keyPair[1], keyPair[0], AESEncrypt.keyToString(AESKey));
+//		
+//		Key newKey = AESEncrypt.stringToKey(RsaEncrypt.nachrichtEntschlüsseln(keyPair[2], keyPair[0], schlüssel));
+//		String entschlüsselt = AESEncrypt.nachrichtEntschlüsseln(newKey, verschlüsselt);
+//		System.out.println(entschlüsselt);
+		
 	}
+
 
 }

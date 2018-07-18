@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.math.BigInteger;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -27,7 +28,8 @@ public class Kontakt extends JPanel{
 	private JTextArea contactNameField, ipAdressField;
 	
 	private ArrayList<Nachricht> nachrichten;
-
+	private BigInteger key, modul;
+	private boolean online;
 	
 	public Kontakt(String contactName, String ipAdress, int id){
 		this.contactName = contactName;
@@ -178,6 +180,30 @@ public class Kontakt extends JPanel{
 	
 	public Nachricht[] nachrichtenGeben() {
 		return nachrichten.toArray(new Nachricht[0]);
+	}
+	
+	public void setKey(BigInteger key) {
+		this.key = key;
+	}
+	
+	public void setModul(BigInteger modul) {
+		this.modul = modul;
+	}
+	
+	public BigInteger getKey() {
+		return key;
+	}
+	
+	public BigInteger getModul() {
+		return modul;
+	}
+	
+	public void setOnline(boolean online) {
+		this.online = online;
+	}
+	
+	public boolean isOnline() {
+		return online;
 	}
 	
 }

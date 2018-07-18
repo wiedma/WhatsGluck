@@ -1,6 +1,11 @@
 package org.GUI;
-
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -9,14 +14,42 @@ import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.PrintWriter;
+import java.math.BigInteger;
+import java.net.InetSocketAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
+import java.net.UnknownHostException;
+import java.security.Key;
 import java.util.ArrayList;
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import javax.swing.JTextPane;
+import javax.swing.KeyStroke;
+import javax.swing.ListSelectionModel;
+import javax.swing.SwingUtilities;
 import javax.swing.text.BadLocationException;
 import javax.swing.text.DefaultStyledDocument;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
 import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import org.Security.AESEncrypt;
+import org.Security.RsaEncrypt;
 
 
 public class Chatfenster extends JFrame{
@@ -34,6 +67,10 @@ public class Chatfenster extends JFrame{
 	private JButton sendeButton;
 	private StyleContext context;
 	private Kontakt aktiverKontakt;
+	private ServerSocket serverSocket;
+	private Thread socketThread;
+	private boolean listening = true;
+	
 	
 	public static final int HOEHE = 500;
 	public static final int BREITE = 600;
@@ -201,6 +238,7 @@ public class Chatfenster extends JFrame{
 		//WindowListener exportiert bei Schließung des Fensters
 		this.addWindowListener(new WindowListener(){
 			public void windowClosing(WindowEvent e){
+				abmelden();
 				exportiere();
 			}
 
@@ -240,15 +278,112 @@ public class Chatfenster extends JFrame{
 				}
 			}
 		});
+		
+		try {
+			serverSocket = new ServerSocket(60000);
+		} catch (IOException e1) {
+			JOptionPane.showMessageDialog(this, "Port 60000 kann nicht verwendet werden!", "Error", JOptionPane.ERROR_MESSAGE);
+			System.exit(0);
+		}
+		
+		
+		socketThread = new Thread() {
+			public void run() {
+				
+				while(listening) {
+					try {
+						Socket neuerKontakt = serverSocket.accept();
+						nachrichtEmpfangen(neuerKontakt);
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
+				
+			}
+		};
+		
+		socketThread.start();
+		
 		this.setVisible(true);
 	}
 	
 	public void neueNachrichtSenden() {
-		if(!nachrichtField.getText().equals(STANDART_SENDE_TEXT) && !nachrichtField.getText().isEmpty()) {
+		if(!nachrichtField.getText().equals(STANDART_SENDE_TEXT) && !nachrichtField.getText().isEmpty() && aktiverKontakt.isOnline()) {
 			neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
 			aktiverKontakt.nachrichtHinzufuegen(nachrichtField.getText() + '\n', true);
+			
+			try {
+				Socket sendeSocket = new Socket();
+				sendeSocket.connect(new InetSocketAddress(aktiverKontakt.getContactIP(), 60000), 100);
+				PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
+				String klartext = nachrichtField.getText();
+				Key key = AESEncrypt.schlüsselErzeugen();
+				String nachricht = AESEncrypt.nachrichtVerschlüsseln(key, klartext);
+				String schlüssel = RsaEncrypt.nachrichtVerschlüsseln(aktiverKontakt.getKey(),
+						aktiverKontakt.getModul(), AESEncrypt.keyToString(key));
+				
+				String message = schlüssel + "//" + nachricht;
+				
+				out.println(message);
+				
+				out.flush();
+				
+				sendeSocket.close();
+			} catch (UnknownHostException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 			nachrichtField.setText(STANDART_SENDE_TEXT);
 		}
+	}
+	
+	public void nachrichtEmpfangen(Socket sender) throws IOException {
+		String senderIP = sender.getRemoteSocketAddress().toString();
+		senderIP = senderIP.replace("/", "");
+		senderIP = senderIP.substring(0, senderIP.indexOf(":"));
+		InputStream in = sender.getInputStream();
+		InputStreamReader inRead = new InputStreamReader(in);
+		BufferedReader read = new BufferedReader(inRead);
+		String nachricht = "";
+		while(!read.ready()) {}
+		while(read.ready()) {
+			nachricht += read.readLine();
+		}
+		
+		Kontakt senderKontakt = null;
+		for(Kontakt k : kontakte) {
+			if(k != null && k.getContactIP() != null && k.getContactIP().equals(senderIP)) {
+				senderKontakt = k;
+			}
+		}
+		
+		if(senderKontakt == null) {
+			JOptionPane.showConfirmDialog(this, "Sie haben eine Nachricht von einem Unbekannten erhalten.");
+			return;
+		}
+		try {
+			if(nachricht.substring(0, 15).equals("//##KeyPair##//")) {
+				schluesselPaarEmpfangen(nachricht.substring(15, nachricht.length()), senderKontakt);
+				return;
+			}
+			else if(nachricht.substring(0, 15).equals("//##Offline##//")) {
+				senderKontakt.setOnline(false);
+			}
+		}catch (StringIndexOutOfBoundsException e) {}
+		
+		String[] chunks = nachricht.split("//");
+		Key aesKey = AESEncrypt.stringToKey(RsaEncrypt.nachrichtEntschlüsseln(senderKontakt.getKey(),
+				senderKontakt.getModul(), chunks[0]));
+		nachricht = AESEncrypt.nachrichtEntschlüsseln(aesKey, chunks[1]);
+		nachricht += "\n";
+		senderKontakt.nachrichtHinzufuegen(nachricht, false);
+		senderKontakt.setNewMessage(true);
+		
+		this.aktiverKontaktSetzen(aktiverKontakt);
+		
+		System.out.println("Message From: " + senderIP);
+		System.out.println(nachricht);
 	}
 	
 	/**Zeigt eine neue Nachricht in der ChatArea an
@@ -288,7 +423,7 @@ public class Chatfenster extends JFrame{
 		}
 		
 		
-		this.revalidate();
+//		this.revalidate();
 		this.repaint();
 	}
 	
@@ -413,6 +548,11 @@ public class Chatfenster extends JFrame{
 		kontaktPanel.add(kontakt);
 		kontaktScrollPane.updateUI();
 		rootPanel.repaint();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				schluesselPaarSenden(kontakt);
+			}
+		});
 	}
 	
 	//Löscht einen Kontakt
@@ -459,6 +599,69 @@ public class Chatfenster extends JFrame{
 		chatPane.setText("");
 		for(Nachricht nachricht : aktiverKontakt.nachrichtenGeben()) {
 			neueNachrichtAnzeigen(nachricht.textGeben(), nachricht.istVonMir());
+		}
+		aktiv.setNewMessage(false);
+		this.setTitle("WhatsGluck - " + aktiv.getContactName());
+	}
+	
+	public void schluesselPaarSenden(Kontakt ziel) {
+		try {
+			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
+			Socket sendeSocket = new Socket();
+			sendeSocket.connect(new InetSocketAddress(ziel.getContactIP(), 60000), 100);
+			PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
+			
+			
+			out.println("//##KeyPair##//" + keyPair[0] + "//" + keyPair[1]);
+			
+			out.flush();
+			
+			sendeSocket.close();
+			
+			ziel.setModul(keyPair[0]);
+			ziel.setKey(keyPair[2]);
+			ziel.setOnline(true);
+		} catch (UnknownHostException e) {
+			ziel.setOnline(false);
+		} catch (IOException e) {
+			ziel.setOnline(false);
+		}
+	}
+	
+	public void schluesselPaarEmpfangen(String schluesselPaar, Kontakt sender) {
+		try {
+			String[] key = schluesselPaar.split("//");
+			BigInteger modul = new BigInteger(key[0]);
+			BigInteger publicKey = new BigInteger(key[1].replaceAll("\n", ""));
+			sender.setModul(modul);
+			sender.setKey(publicKey);
+			sender.setOnline(true);
+		} catch(ArrayIndexOutOfBoundsException e) {
+			JOptionPane.showConfirmDialog(this, "Ungültiger Schlüsseltausch von " + sender.getContactName(), "Error", JOptionPane.ERROR_MESSAGE);
+		}
+	}
+	
+	public void abmelden() {
+		listening = false;
+		for(Kontakt k : kontakte) {
+			if(k.isOnline()) {
+				try {
+					Socket sendeSocket = new Socket();
+					sendeSocket.connect(new InetSocketAddress(k.getContactIP(), 60000), 50);
+					PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
+					
+					out.println("//##Offline##//");
+					
+					out.flush();
+					
+					sendeSocket.close();
+					
+				} catch (UnknownHostException e) {
+					e.printStackTrace();
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+			}
 		}
 	}
 }

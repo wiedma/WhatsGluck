@@ -5,6 +5,7 @@ import java.awt.Color;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.math.BigInteger;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 import javax.swing.ImageIcon;
@@ -51,6 +52,7 @@ public class Kontakt extends JPanel{
 		contactNameField.setFont(new Font("Verdana", Font.BOLD, 12));
 		contactNameField.setForeground(Color.BLACK);
 		contactNameField.setEditable(false);
+		contactNameField.setFocusable(false);
 		contentPanel.add(contactNameField, BorderLayout.CENTER);
 		
 		//ipAdressField
@@ -60,9 +62,7 @@ public class Kontakt extends JPanel{
 		ipAdressField.setForeground(Color.WHITE);
 		ipAdressField.setEditable(false);
 		contentPanel.add(ipAdressField, BorderLayout.SOUTH);
-		
 		contentPanel.setOpaque(false);
-//		this.setOpaque(true);
 		
 		nachrichten = new ArrayList<Nachricht>();
 	}
@@ -155,6 +155,13 @@ public class Kontakt extends JPanel{
 	@Override
 	public String toString() {
 		return contactName;
+	}
+	
+	public void addMouseListenerToContact(MouseListener m) {
+		this.addMouseListener(m);
+		contentPanel.addMouseListener(m);
+		ipAdressField.addMouseListener(m);
+		contactNameField.addMouseListener(m);
 	}
 	
 	public void nachrichtHinzufuegen(String text, boolean vonMir) {

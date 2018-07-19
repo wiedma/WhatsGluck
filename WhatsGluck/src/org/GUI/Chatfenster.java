@@ -320,8 +320,8 @@ public class Chatfenster extends JFrame{
 				String klartext = nachrichtField.getText();
 				Key key = AESEncrypt.schlüsselErzeugen();
 				String nachricht = AESEncrypt.nachrichtVerschlüsseln(key, klartext);
-				String schlüssel = RsaEncrypt.nachrichtVerschlüsseln(aktiverKontakt.getKey(),
-						aktiverKontakt.getModul(), AESEncrypt.keyToString(key));
+				String schlüssel = RsaEncrypt.nachrichtVerschlüsseln(aktiverKontakt.getPublicKey(),
+						aktiverKontakt.getPublicModul(), AESEncrypt.keyToString(key));
 				
 				String message = schlüssel + "//" + nachricht;
 				
@@ -365,7 +365,7 @@ public class Chatfenster extends JFrame{
 		}
 		try {
 			if(nachricht.substring(0, 15).equals("//##KeyPair##//")) {
-				schluesselPaarEmpfangen(nachricht.substring(15, nachricht.length()), senderKontakt);
+				schluesselPaarEmpfangen(nachricht.substring(15, nachricht.length()), senderKontakt, sender);
 				return;
 			}
 			else if(nachricht.substring(0, 15).equals("//##Offline##//")) {
@@ -374,8 +374,8 @@ public class Chatfenster extends JFrame{
 		}catch (StringIndexOutOfBoundsException e) {}
 		
 		String[] chunks = nachricht.split("//");
-		Key aesKey = AESEncrypt.stringToKey(RsaEncrypt.nachrichtEntschlüsseln(senderKontakt.getKey(),
-				senderKontakt.getModul(), chunks[0]));
+		Key aesKey = AESEncrypt.stringToKey(RsaEncrypt.nachrichtEntschlüsseln(senderKontakt.getPrivateKey(),
+				senderKontakt.getPrivateModul(), chunks[0]));
 		nachricht = AESEncrypt.nachrichtEntschlüsseln(aesKey, chunks[1]);
 		nachricht += "\n";
 		senderKontakt.nachrichtHinzufuegen(nachricht, false);
@@ -549,6 +549,7 @@ public class Chatfenster extends JFrame{
 		kontaktPanel.add(kontakt);
 		kontaktScrollPane.updateUI();
 		rootPanel.repaint();
+		
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				schluesselPaarSenden(kontakt);
@@ -617,10 +618,24 @@ public class Chatfenster extends JFrame{
 			
 			out.flush();
 			
+			InputStream in = sendeSocket.getInputStream();
+			InputStreamReader inRead = new InputStreamReader(in);
+			BufferedReader read = new BufferedReader(inRead);
+			String keyString = "";
+			
+			while(!read.ready()) {}
+			while(read.ready()) {
+				keyString += read.readLine();
+			}
+			
+			String[] keyStringChunks = keyString.split("//");
+			
 			sendeSocket.close();
 			
-			ziel.setModul(keyPair[0]);
-			ziel.setKey(keyPair[2]);
+			ziel.setPrivateModul(keyPair[0]);
+			ziel.setPublicModul(new BigInteger(keyStringChunks[0]));
+			ziel.setPrivateKey(keyPair[2]);
+			ziel.setPublicKey(new BigInteger(keyStringChunks[1].replaceAll("\n", "")));
 			ziel.setOnline(true);
 		} catch (UnknownHostException e) {
 			ziel.setOnline(false);
@@ -629,16 +644,25 @@ public class Chatfenster extends JFrame{
 		}
 	}
 	
-	public void schluesselPaarEmpfangen(String schluesselPaar, Kontakt sender) {
+	public void schluesselPaarEmpfangen(String schluesselPaar, Kontakt sender, Socket senderSocket) {
 		try {
 			String[] key = schluesselPaar.split("//");
 			BigInteger modul = new BigInteger(key[0]);
 			BigInteger publicKey = new BigInteger(key[1].replaceAll("\n", ""));
-			sender.setModul(modul);
-			sender.setKey(publicKey);
+			
+			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
+			String keyPairString = keyPair[0].toString() + "//" + keyPair[1].toString();
+			new PrintWriter(senderSocket.getOutputStream()).println(keyPairString);
+			
+			sender.setPublicModul(modul);
+			sender.setPrivateModul(keyPair[0]);
+			sender.setPublicKey(publicKey);
+			sender.setPrivateKey(keyPair[2]);
 			sender.setOnline(true);
 		} catch(ArrayIndexOutOfBoundsException e) {
 			JOptionPane.showConfirmDialog(this, "Ungültiger Schlüsseltausch von " + sender.getContactName(), "Error", JOptionPane.ERROR_MESSAGE);
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 	

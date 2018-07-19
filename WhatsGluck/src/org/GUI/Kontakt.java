@@ -29,7 +29,7 @@ public class Kontakt extends JPanel{
 	private JTextArea contactNameField, ipAdressField;
 	
 	private ArrayList<Nachricht> nachrichten;
-	private BigInteger key, modul;
+	private BigInteger publicKey, privateKey, publicModul, privateModul;
 	private boolean online;
 	
 	public Kontakt(String contactName, String ipAdress, int id){
@@ -189,20 +189,36 @@ public class Kontakt extends JPanel{
 		return nachrichten.toArray(new Nachricht[0]);
 	}
 	
-	public void setKey(BigInteger key) {
-		this.key = key;
+	public void setPublicKey(BigInteger key) {
+		this.publicKey = key;
 	}
 	
-	public void setModul(BigInteger modul) {
-		this.modul = modul;
+	public void setPrivateKey(BigInteger key) {
+		this.privateKey = key;
 	}
 	
-	public BigInteger getKey() {
-		return key;
+	public void setPublicModul(BigInteger modul) {
+		this.publicModul = modul;
 	}
 	
-	public BigInteger getModul() {
-		return modul;
+	public void setPrivateModul(BigInteger modul) {
+		this.privateModul = modul;
+	}
+	
+	public BigInteger getPublicKey() {
+		return publicKey;
+	}
+	
+	public BigInteger getPrivateKey() {
+		return privateKey;
+	}
+	
+	public BigInteger getPublicModul() {
+		return publicModul;
+	}
+	
+	public BigInteger getPrivateModul() {
+		return privateModul;
 	}
 	
 	public void setOnline(boolean online) {

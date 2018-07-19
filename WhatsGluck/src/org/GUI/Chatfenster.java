@@ -652,7 +652,9 @@ public class Chatfenster extends JFrame{
 			
 			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
 			String keyPairString = keyPair[0].toString() + "//" + keyPair[1].toString();
-			new PrintWriter(senderSocket.getOutputStream()).println(keyPairString);
+			PrintWriter out = new PrintWriter(senderSocket.getOutputStream());
+			out.println(keyPairString);
+			out.flush();
 			
 			sender.setPublicModul(modul);
 			sender.setPrivateModul(keyPair[0]);

@@ -5,7 +5,7 @@ import java.util.Random;
 
 public class RsaEncrypt {
 	
-	private static final int keySize = 1028;
+	private static final int keySize = 256;
 	
 	public static BigInteger[] getNewKeyPair(){
 		BigInteger p, q, N, phi, e, d;

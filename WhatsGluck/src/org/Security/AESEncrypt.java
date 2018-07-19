@@ -70,7 +70,7 @@ public class AESEncrypt {
 			e.printStackTrace();
 			return null;
 		} catch (InvalidKeyException e) {
-			e.printStackTrace();
+//			e.printStackTrace();
 			return null;
 		} catch (IllegalBlockSizeException e) {
 			e.printStackTrace();

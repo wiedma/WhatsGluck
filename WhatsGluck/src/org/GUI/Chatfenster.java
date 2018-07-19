@@ -36,6 +36,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
@@ -267,18 +268,6 @@ public class Chatfenster extends JFrame{
 			public void windowDeactivated(WindowEvent e) {
 			}
 		});
-		//Importiere Kontakte und Chatverläufe im GUI-Thread
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				importiere();
-				
-				try {
-					aktiverKontaktSetzen(kontakte.get(0));
-				} catch(IndexOutOfBoundsException e) {
-					e.printStackTrace();
-				}
-			}
-		});
 		
 		try {
 			serverSocket = new ServerSocket(60000);
@@ -298,12 +287,28 @@ public class Chatfenster extends JFrame{
 					} catch (IOException e) {
 						e.printStackTrace();
 					}
+					
 				}
-				
 			}
 		};
-		
 		socketThread.start();
+		
+		//Importiere Kontakte und Chatverläufe im GUI-Thread
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				importiere();
+				
+				for(Kontakt k : kontakte) {
+					schluesselPaarSenden(k);
+				}
+				
+				try {
+					aktiverKontaktSetzen(kontakte.get(0));
+				} catch(IndexOutOfBoundsException e) {
+					e.printStackTrace();
+				}
+			}
+		});
 		
 		this.setVisible(true);
 	}
@@ -313,7 +318,7 @@ public class Chatfenster extends JFrame{
 			
 			try {
 				Socket sendeSocket = new Socket();
-				sendeSocket.connect(new InetSocketAddress(aktiverKontakt.getContactIP(), 60000), 100);
+				sendeSocket.connect(new InetSocketAddress(aktiverKontakt.getContactIP(), 60000), 150);
 				PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
 				String klartext = nachrichtField.getText();
 				Key key = AESEncrypt.schlüsselErzeugen();
@@ -364,9 +369,21 @@ public class Chatfenster extends JFrame{
 		}
 		
 		if(senderKontakt == null) {
-			JOptionPane.showConfirmDialog(this, "Sie haben eine Nachricht von einem Unbekannten erhalten.");
-			System.out.println(senderIP + "\n" + nachricht);
-			return;
+			int n = JOptionPane.showConfirmDialog(this, "Sie haben eine Nachricht von einem Unbekannten erhalten.\n"
+					+ "Möchten Sie diese IP-Adresse zu ihren Kontakten aufnehmen?\n"
+					+ "IP: " + senderIP);
+			
+			
+			if(n != JOptionPane.YES_OPTION) {
+				return;
+			}
+			else {
+				senderKontakt = kontaktFensterHinzufuegen(senderIP);
+			}
+			
+			if(senderKontakt == null) {
+				return;
+			}
 		}
 		try {
 			if(nachricht.substring(0, 15).equals("//##KeyPair##//")) {
@@ -375,6 +392,7 @@ public class Chatfenster extends JFrame{
 			}
 			else if(nachricht.substring(0, 15).equals("//##Offline##//")) {
 				senderKontakt.setOnline(false);
+				return;
 			}
 			else if(nachricht.substring(0, 15).equals("//%%KeyPair%%//")) {
 				schluesselPaarAkzeptieren(nachricht.substring(15, nachricht.length()), senderKontakt);
@@ -431,8 +449,8 @@ public class Chatfenster extends JFrame{
 		}catch(BadLocationException e) {
 			e.printStackTrace();
 		}
-		
-		
+		JScrollBar scrollBar = chatScrollPane.getVerticalScrollBar();
+		scrollBar.setValue(scrollBar.getMaximum());
 //		this.revalidate();
 		this.repaint();
 	}
@@ -447,7 +465,33 @@ public class Chatfenster extends JFrame{
 
         while(option == 0 && name.getText().length() == 0 && ip.getText().length() == 0)
         	option = JOptionPane.showOptionDialog(this, message, "Kontakt hinzufügen...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
-        if(option == 0) kontaktHinzufuegen(new Kontakt(name.getText(), ip.getText(), kontakte.size()));
+        if(option == 0) {
+        	Kontakt k = new Kontakt(name.getText(), ip.getText(), kontakte.size());
+        	kontaktHinzufuegen(k);
+        	schluesselPaarSenden(k);
+        	try {Thread.sleep(200);} catch(Exception e) {}
+        }
+	}
+	
+	//Zeigt das Dialog-Fenster zum Hinzufügen eines Kontaktes an
+	public Kontakt kontaktFensterHinzufuegen(String IP){
+		JTextField name = new JTextField();
+		JTextField ip = new JTextField();
+		ip.setText(IP);
+        Object[] message = {"Name:", name, "IP-Adresse:", ip};
+        Object[] options = {"Hinzufügen", "Abbrechen"};
+        int option = 0;
+        do {
+        	option = JOptionPane.showOptionDialog(this, message, "Kontakt hinzufügen...", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, options, options[0]);
+        }while(option == 0 && name.getText().length() == 0 && ip.getText().length() == 0);
+        if(option == 0) {
+        	Kontakt k = new Kontakt(name.getText(), ip.getText(), kontakte.size());
+        	kontaktHinzufuegen(k);
+        	schluesselPaarSenden(k);
+        	try {Thread.sleep(200);} catch(Exception e) {}
+        	return k;
+        }
+        return null;
 	}
 	
 	//Zeigt das Dialog-Fenster zum Löschen eines Kontaktes an
@@ -559,11 +603,11 @@ public class Chatfenster extends JFrame{
 		kontaktScrollPane.updateUI();
 		rootPanel.repaint();
 		
-		SwingUtilities.invokeLater(new Runnable() {
-			public void run() {
-				schluesselPaarSenden(kontakt);
-			}
-		});
+//		SwingUtilities.invokeLater(new Runnable() {
+//			public void run() {
+//				schluesselPaarSenden(kontakt);
+//			}
+//		});
 	}
 	
 	//Löscht einen Kontakt
@@ -619,33 +663,17 @@ public class Chatfenster extends JFrame{
 		try {
 			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
 			Socket sendeSocket = new Socket();
-			sendeSocket.connect(new InetSocketAddress(ziel.getContactIP(), 60000), 100);
+			sendeSocket.connect(new InetSocketAddress(ziel.getContactIP(), 60000), 150);
 			PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
 			
 			
 			out.println("//##KeyPair##//" + keyPair[0] + "//" + keyPair[1]);
 			
 			out.flush();
-			
-//			InputStream in = sendeSocket.getInputStream();
-//			InputStreamReader inRead = new InputStreamReader(in);
-//			BufferedReader read = new BufferedReader(inRead);
-//			String keyString = "";
-//			
-//			while(!read.ready()) {}
-//			while(read.ready()) {
-//				keyString += read.readLine();
-//			}
-			
-//			String[] keyStringChunks = keyString.split("//");
-			
 			sendeSocket.close();
 			
 			ziel.setPrivateModul(keyPair[0]);
-//			ziel.setPublicModul(new BigInteger(keyStringChunks[0]));
 			ziel.setPrivateKey(keyPair[2]);
-//			ziel.setPublicKey(new BigInteger(keyStringChunks[1].replaceAll("\n", "")));
-//			ziel.setOnline(true);
 		} catch (UnknownHostException e) {
 			ziel.setOnline(false);
 		} catch (IOException e) {
@@ -662,7 +690,7 @@ public class Chatfenster extends JFrame{
 			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
 			String keyPairString = keyPair[0].toString() + "//" + keyPair[1].toString();
 			Socket senderSocket = new Socket();
-			senderSocket.connect(new InetSocketAddress(sender.getContactIP(), 60000), 100);
+			senderSocket.connect(new InetSocketAddress(sender.getContactIP(), 60000), 150);
 			PrintWriter out = new PrintWriter(senderSocket.getOutputStream());
 			out.println("//%%KeyPair%%//" + keyPairString);
 			out.flush();
@@ -700,7 +728,7 @@ public class Chatfenster extends JFrame{
 			if(k.isOnline()) {
 				try {
 					Socket sendeSocket = new Socket();
-					sendeSocket.connect(new InetSocketAddress(k.getContactIP(), 60000), 50);
+					sendeSocket.connect(new InetSocketAddress(k.getContactIP(), 60000), 1000);
 					PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
 					
 					out.println("//##Offline##//");

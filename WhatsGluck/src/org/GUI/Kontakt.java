@@ -2,8 +2,11 @@ package org.GUI;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.RenderingHints;
 import java.math.BigInteger;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -18,15 +21,17 @@ public class Kontakt extends JPanel{
 	public static final long serialVersionUID = -3266678289400497661L;
 	private static final Color defaultColor = new Color(91, 170, 255);
 	private static final Color highlightColor = new Color(81, 224, 71);
-	private static final String imagePath = "resources\\contactIcon.png";
+	private static final String imagePathOn = "resources\\contactIconOn.png";
+	private static final String imagePathOff = "resources\\contactIconOff.png";
 	
 	private String contactName, ipAdress;
-	private ImageIcon profileImage = new ImageIcon(imagePath,"profileImage");
 	private int id;
 	private Color color;
 	
 	private JPanel contentPanel;
 	private JTextArea contactNameField, ipAdressField;
+	private JLabel iconLabel;
+	private ImageIcon profileImageOff, profileImageOn;
 	
 	private ArrayList<Nachricht> nachrichten;
 	private BigInteger publicKey, privateKey, publicModul, privateModul;
@@ -38,7 +43,16 @@ public class Kontakt extends JPanel{
 		this.color = defaultColor;
 		this.setId(id);
 		this.setLayout(new BorderLayout());
-		this.add(new JLabel(profileImage), BorderLayout.WEST);
+		profileImageOff = new ImageIcon(imagePathOff,"profileImage");
+		profileImageOn = new ImageIcon(imagePathOn,"profileImage");
+		iconLabel = new JLabel(profileImageOff);
+		JPanel space = new JPanel();
+		space.setOpaque(false);
+		space.setLayout(new BorderLayout());
+		space.add(new JLabel("   "), BorderLayout.CENTER);
+		space.add(iconLabel, BorderLayout.EAST);
+		this.add(space, BorderLayout.WEST);
+		
 		
 		//contentPanel
 		contentPanel = new JPanel();
@@ -49,7 +63,7 @@ public class Kontakt extends JPanel{
 		//contactNameField
 		contactNameField = new JTextArea("\n  "+contactName);
 		contactNameField.setOpaque(false);
-		contactNameField.setFont(new Font("Verdana", Font.BOLD, 12));
+		contactNameField.setFont(new Font("SansSerif", Font.BOLD, 13));
 		contactNameField.setForeground(Color.BLACK);
 		contactNameField.setEditable(false);
 		contactNameField.setFocusable(false);
@@ -87,7 +101,20 @@ public class Kontakt extends JPanel{
 	
     @Override protected void paintComponent(Graphics g){
         super.paintComponent(g);
-        setBackground(color);
+        
+        //setBackground(color);
+        Dimension arcs = new Dimension(15,15);
+        int width = getWidth();
+        int height = getHeight();
+        Graphics2D graphics = (Graphics2D) g;
+        graphics.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+        //Draws the rounded opaque panel with borders.
+        graphics.setColor(color);
+        graphics.fillRoundRect(0, 0, width-1, height-1, arcs.width, arcs.height);//paint background
+        graphics.setColor(new Color(120,120,120));
+        graphics.drawRoundRect(0, 0, width-1, height-1, arcs.width, arcs.height);//paint border
+
         setVisible(true);
     }
 	
@@ -222,6 +249,11 @@ public class Kontakt extends JPanel{
 	}
 	
 	public void setOnline(boolean online) {
+		if(online) {
+			iconLabel.setIcon(profileImageOn);
+		}else {
+			iconLabel.setIcon(profileImageOff);
+		}
 		this.online = online;
 	}
 	

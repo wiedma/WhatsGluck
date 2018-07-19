@@ -6,6 +6,7 @@ import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.GridLayout;
+import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusEvent;
@@ -15,6 +16,7 @@ import java.awt.event.MouseListener;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,6 +28,11 @@ import java.net.Socket;
 import java.net.UnknownHostException;
 import java.security.Key;
 import java.util.ArrayList;
+
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComponent;
@@ -38,6 +45,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollBar;
 import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.JTextPane;
 import javax.swing.KeyStroke;
@@ -71,6 +79,7 @@ public class Chatfenster extends JFrame{
 	private ServerSocket serverSocket;
 	private Thread socketThread;
 	private boolean listening = true;
+	private ImageIcon icon;
 	
 	
 	public static final int HOEHE = 500;
@@ -96,21 +105,27 @@ public class Chatfenster extends JFrame{
 				case "Kontakt bearbeiten": kontaktFensterBearbeiten(); break;
 				case "Kontakt löschen": kontaktFensterLoeschen(); break;
 				case "Kontakt hinzufügen": kontaktFensterHinzufuegen(); break;
+				case "Info": infoFenster(); break;
+				case "Speichern": exportiere(); break;
+				case "Beenden": closeWindow();
 				default: System.out.println("Error: Could not find source."); break;
 				}
 			}
 		};
 		
 		menu[0] = new JMenu("Datei");
-		menuItem[0][0] = new JMenuItem("Einstellungen");
+		menuItem[0][0] = new JMenuItem("Info");
 		menuItem[0][0].setBackground(Color.WHITE);
 		menuItem[0][0].setOpaque(true);
+		menuItem[0][0].addActionListener(actionMenu);
 		menuItem[0][1] = new JMenuItem("Speichern");
 		menuItem[0][1].setBackground(Color.WHITE);
 		menuItem[0][1].setOpaque(true);
+		menuItem[0][1].addActionListener(actionMenu);
 		menuItem[0][2] = new JMenuItem("Beenden");
 		menuItem[0][2].setBackground(Color.WHITE);
 		menuItem[0][2].setOpaque(true);
+		menuItem[0][2].addActionListener(actionMenu);
 		menu[0].add(menuItem[0][0]);
 		menu[0].add(menuItem[0][1]);
 		menu[0].add(menuItem[0][2]);
@@ -238,6 +253,9 @@ public class Chatfenster extends JFrame{
 		this.setSize(BREITE, HOEHE);
 		this.setTitle("WhatsGluck");
 		this.setDefaultCloseOperation(EXIT_ON_CLOSE);
+		icon = new ImageIcon("resources\\Icon.png");
+        this.setIconImage(icon.getImage());
+		
 		//WindowListener exportiert bei Schließung des Fensters
 		this.addWindowListener(new WindowListener(){
 			public void windowClosing(WindowEvent e){
@@ -246,28 +264,22 @@ public class Chatfenster extends JFrame{
 			}
 
 			@Override
-			public void windowOpened(WindowEvent e) {
-			}
+			public void windowOpened(WindowEvent e) {}
 
 			@Override
-			public void windowClosed(WindowEvent e) {	
-			}
+			public void windowClosed(WindowEvent e) {	}
 
 			@Override
-			public void windowIconified(WindowEvent e) {
-			}
+			public void windowIconified(WindowEvent e) {}
 
 			@Override
-			public void windowDeiconified(WindowEvent e) {
-			}
+			public void windowDeiconified(WindowEvent e) {}
 
 			@Override
-			public void windowActivated(WindowEvent e) {
-			}
+			public void windowActivated(WindowEvent e) {}
 
 			@Override
-			public void windowDeactivated(WindowEvent e) {
-			}
+			public void windowDeactivated(WindowEvent e) {}
 		});
 		
 		try {
@@ -408,6 +420,7 @@ public class Chatfenster extends JFrame{
 		nachricht += "\n";
 		senderKontakt.nachrichtHinzufuegen(nachricht, false);
 		senderKontakt.setNewMessage(true);
+		playNewMessage();
 		
 		this.aktiverKontaktSetzen(aktiverKontakt);
 		
@@ -454,6 +467,40 @@ public class Chatfenster extends JFrame{
 		scrollBar.setValue(scrollBar.getMaximum());
 //		this.revalidate();
 		this.repaint();
+	}
+	
+	//Spielt eine Sound-Datei bei Eintreffen einer neuen Nachricht
+	public void playNewMessage() {
+		try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(new File("resources\\MessageSound.wav"));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);clip.start();
+        } catch(Exception e) {
+        	System.out.println("Error with playing sound."); 
+        	e.printStackTrace(); 
+        }
+	}
+	
+	//Öffnet ein kleines Informationsfenster
+	public void infoFenster() {
+		JTextArea info = new JTextArea();
+		info.setEditable(false);
+		info.setFocusable(false);
+		info.setOpaque(false);
+		info.setText("Dieses Chat-Programm 'WhatsGluck' wurde in JAVA im Rahmen eines Informatik-Projektes entwickelt. \n\n"
+				+ "Die Nachrichten werden mithilfe einer Hybrid-Verschlüsselung aus RSA und AES übertragen. \n"
+				+"Damit ist das Abhören von Dritten (ohne erheblichen Aufwand) bei der Datenübertragung ausgeschlossen.\n"
+				+"Eine Verbindung wird mithilfe der IP-Adresse des Adressaten über Sockets aufgebaut.\n"
+				+"Dabei ist es möglich, mit mehreren Personen parallel zu kommunizieren. \n"
+				+"Chatverläufe und Kontaktdaten können lokal abgespeichert und wiederverwendet werden. \n\n"
+				+"Autoren: \n\n\t Marco Wiedmann \n\t Benedikt Naumann\n\n"
+				+"Alle Rechte vorbehalten.\n"
+				+"Es wird keine Haftung für Schäden oder anderweitige Verluste bei der Nutzung dieser Applikation übernommen. \n\n"
+				+"Source-Code einsehen: https:www.github.com/wiedma/WhatsGluck");
+		Object[] message = {info};
+		Object[] options = {"OK"};
+		
+		JOptionPane.showOptionDialog(this, message, "Info", JOptionPane.YES_NO_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
 	}
 	
 	//Zeigt das Dialog-Fenster zum Hinzufügen eines Kontaktes an
@@ -570,32 +617,20 @@ public class Chatfenster extends JFrame{
 
 			@Override
 			public void mouseClicked(MouseEvent e) {
-				//Auto-generated method stub
 				aktiverKontaktSetzen(kontakt);
 			}
 
 			@Override
-			public void mousePressed(MouseEvent e) {
-				//Auto-generated method stub
-				
-			}
+			public void mousePressed(MouseEvent e) {}
 
 			@Override
-			public void mouseReleased(MouseEvent e) {
-				//Auto-generated method stub
-				
-			}
+			public void mouseReleased(MouseEvent e) {}
 
 			@Override
-			public void mouseEntered(MouseEvent e) {
-				//Auto-generated method stub
-				
-			}
+			public void mouseEntered(MouseEvent e) {}
 
 			@Override
-			public void mouseExited(MouseEvent e) {
-				//Auto-generated method stub
-			}
+			public void mouseExited(MouseEvent e) {}
 			
 		});
 		kontakte.add(kontakt);
@@ -721,6 +756,17 @@ public class Chatfenster extends JFrame{
 		} catch(Exception e) {
 			e.printStackTrace();
 		}
+	}
+	
+	public void closeWindow() {
+		abmelden();
+		exportiere();
+		WindowEvent wev = new WindowEvent(this, WindowEvent.WINDOW_CLOSING);
+	    Toolkit.getDefaultToolkit().getSystemEventQueue().postEvent(wev);
+	    setVisible(false);
+	    dispose();
+	    System.exit(0); 
+
 	}
 	
 	public void abmelden() {

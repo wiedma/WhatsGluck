@@ -310,8 +310,6 @@ public class Chatfenster extends JFrame{
 	
 	public void neueNachrichtSenden() {
 		if(!nachrichtField.getText().equals(STANDART_SENDE_TEXT) && !nachrichtField.getText().isEmpty() && aktiverKontakt.isOnline()) {
-			neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
-			aktiverKontakt.nachrichtHinzufuegen(nachrichtField.getText() + '\n', true);
 			
 			try {
 				Socket sendeSocket = new Socket();
@@ -332,9 +330,15 @@ public class Chatfenster extends JFrame{
 				sendeSocket.close();
 			} catch (UnknownHostException e) {
 				e.printStackTrace();
+				return;
 			} catch (IOException e) {
 				e.printStackTrace();
+				return;
 			}
+			
+			neueNachrichtAnzeigen(nachrichtField.getText() + '\n', true);
+			aktiverKontakt.nachrichtHinzufuegen(nachrichtField.getText() + '\n', true);
+
 			nachrichtField.setText(STANDART_SENDE_TEXT);
 		}
 	}
@@ -361,6 +365,7 @@ public class Chatfenster extends JFrame{
 		
 		if(senderKontakt == null) {
 			JOptionPane.showConfirmDialog(this, "Sie haben eine Nachricht von einem Unbekannten erhalten.");
+			System.out.println(senderIP + "\n" + nachricht);
 			return;
 		}
 		try {

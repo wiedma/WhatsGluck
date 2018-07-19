@@ -32,7 +32,14 @@ public class RsaEncrypt {
 	}
 	
 	public static String nachrichtEntschlüsseln(BigInteger privateKey, BigInteger modul, String nachricht) {
-		BigInteger nachrichtVerschlüsselt = new BigInteger(nachricht);
+		BigInteger nachrichtVerschlüsselt;
+		try {
+			nachrichtVerschlüsselt = new BigInteger(nachricht);
+		} catch(NumberFormatException e) {
+			e.printStackTrace();
+			System.out.println(nachricht);
+			return null;
+		}
 		BigInteger nachrichtEntschlüsselt = nachrichtVerschlüsselt.modPow(privateKey, modul);
 		byte[] nachrichtBytes = nachrichtEntschlüsselt.toByteArray();
 		String klartext = new String(nachrichtBytes);

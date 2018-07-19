@@ -365,11 +365,15 @@ public class Chatfenster extends JFrame{
 		}
 		try {
 			if(nachricht.substring(0, 15).equals("//##KeyPair##//")) {
-				schluesselPaarEmpfangen(nachricht.substring(15, nachricht.length()), senderKontakt, sender);
+				schluesselPaarEmpfangen(nachricht.substring(15, nachricht.length()), senderKontakt);
 				return;
 			}
 			else if(nachricht.substring(0, 15).equals("//##Offline##//")) {
 				senderKontakt.setOnline(false);
+			}
+			else if(nachricht.substring(0, 15).equals("//%%KeyPair%%//")) {
+				schluesselPaarAkzeptieren(nachricht.substring(15, nachricht.length()), senderKontakt);
+				return;
 			}
 		}catch (StringIndexOutOfBoundsException e) {}
 		
@@ -618,25 +622,25 @@ public class Chatfenster extends JFrame{
 			
 			out.flush();
 			
-			InputStream in = sendeSocket.getInputStream();
-			InputStreamReader inRead = new InputStreamReader(in);
-			BufferedReader read = new BufferedReader(inRead);
-			String keyString = "";
+//			InputStream in = sendeSocket.getInputStream();
+//			InputStreamReader inRead = new InputStreamReader(in);
+//			BufferedReader read = new BufferedReader(inRead);
+//			String keyString = "";
+//			
+//			while(!read.ready()) {}
+//			while(read.ready()) {
+//				keyString += read.readLine();
+//			}
 			
-			while(!read.ready()) {}
-			while(read.ready()) {
-				keyString += read.readLine();
-			}
-			
-			String[] keyStringChunks = keyString.split("//");
+//			String[] keyStringChunks = keyString.split("//");
 			
 			sendeSocket.close();
 			
 			ziel.setPrivateModul(keyPair[0]);
-			ziel.setPublicModul(new BigInteger(keyStringChunks[0]));
+//			ziel.setPublicModul(new BigInteger(keyStringChunks[0]));
 			ziel.setPrivateKey(keyPair[2]);
-			ziel.setPublicKey(new BigInteger(keyStringChunks[1].replaceAll("\n", "")));
-			ziel.setOnline(true);
+//			ziel.setPublicKey(new BigInteger(keyStringChunks[1].replaceAll("\n", "")));
+//			ziel.setOnline(true);
 		} catch (UnknownHostException e) {
 			ziel.setOnline(false);
 		} catch (IOException e) {
@@ -644,7 +648,7 @@ public class Chatfenster extends JFrame{
 		}
 	}
 	
-	public void schluesselPaarEmpfangen(String schluesselPaar, Kontakt sender, Socket senderSocket) {
+	public void schluesselPaarEmpfangen(String schluesselPaar, Kontakt sender) {
 		try {
 			String[] key = schluesselPaar.split("//");
 			BigInteger modul = new BigInteger(key[0]);
@@ -652,9 +656,13 @@ public class Chatfenster extends JFrame{
 			
 			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
 			String keyPairString = keyPair[0].toString() + "//" + keyPair[1].toString();
+			Socket senderSocket = new Socket();
+			senderSocket.connect(new InetSocketAddress(sender.getContactIP(), 60000), 100);
 			PrintWriter out = new PrintWriter(senderSocket.getOutputStream());
-			out.println(keyPairString);
+			out.println("//%%KeyPair%%//" + keyPairString);
 			out.flush();
+			
+			senderSocket.close();
 			
 			sender.setPublicModul(modul);
 			sender.setPrivateModul(keyPair[0]);
@@ -664,6 +672,19 @@ public class Chatfenster extends JFrame{
 		} catch(ArrayIndexOutOfBoundsException e) {
 			JOptionPane.showConfirmDialog(this, "Ungültiger Schlüsseltausch von " + sender.getContactName(), "Error", JOptionPane.ERROR_MESSAGE);
 		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void schluesselPaarAkzeptieren(String schluesselPaar, Kontakt sender) {
+		try {
+			String[] key = schluesselPaar.split("//");
+			BigInteger modul = new BigInteger(key[0]);
+			BigInteger publicKey = new BigInteger(key[1].replaceAll("\n", ""));
+			sender.setPublicModul(modul);
+			sender.setPublicKey(publicKey);
+			sender.setOnline(true);
+		} catch(Exception e) {
 			e.printStackTrace();
 		}
 	}

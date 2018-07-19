@@ -1,4 +1,2 @@
 ID: 1//NAME: Daniel Seidel//IP: 93.215.58.88//
-ID: 2//NAME: Benedikt//IP: 192.168.27.2//
-ID: 3//NAME: Marco//IP: 192.168.27.3//
-ID: 4//NAME: localhost//IP: 127.0.0.1//
+ID: 2//NAME: Benedikt//IP: 92.211.29.192//

@@ -79,6 +79,7 @@ public class Chatfenster extends JFrame{
 	public static final int KONTAKT_HOEHE = 50;
 	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben...";
 	public static final int MAX_WORTLAENGE = 30;
+	public static final int PORT_NUMBER = 60000;
 	
 	public Chatfenster() {
 		
@@ -318,7 +319,7 @@ public class Chatfenster extends JFrame{
 			
 			try {
 				Socket sendeSocket = new Socket();
-				sendeSocket.connect(new InetSocketAddress(aktiverKontakt.getContactIP(), 60000), 150);
+				sendeSocket.connect(new InetSocketAddress(aktiverKontakt.getContactIP(), PORT_NUMBER), 150);
 				PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
 				String klartext = nachrichtField.getText();
 				Key key = AESEncrypt.schlüsselErzeugen();
@@ -663,7 +664,7 @@ public class Chatfenster extends JFrame{
 		try {
 			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
 			Socket sendeSocket = new Socket();
-			sendeSocket.connect(new InetSocketAddress(ziel.getContactIP(), 60000), 150);
+			sendeSocket.connect(new InetSocketAddress(ziel.getContactIP(), PORT_NUMBER), 150);
 			PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
 			
 			
@@ -690,7 +691,7 @@ public class Chatfenster extends JFrame{
 			BigInteger[] keyPair = RsaEncrypt.getNewKeyPair();
 			String keyPairString = keyPair[0].toString() + "//" + keyPair[1].toString();
 			Socket senderSocket = new Socket();
-			senderSocket.connect(new InetSocketAddress(sender.getContactIP(), 60000), 150);
+			senderSocket.connect(new InetSocketAddress(sender.getContactIP(), PORT_NUMBER), 150);
 			PrintWriter out = new PrintWriter(senderSocket.getOutputStream());
 			out.println("//%%KeyPair%%//" + keyPairString);
 			out.flush();
@@ -728,7 +729,7 @@ public class Chatfenster extends JFrame{
 			if(k.isOnline()) {
 				try {
 					Socket sendeSocket = new Socket();
-					sendeSocket.connect(new InetSocketAddress(k.getContactIP(), 60000), 1000);
+					sendeSocket.connect(new InetSocketAddress(k.getContactIP(), PORT_NUMBER), 1000);
 					PrintWriter out = new PrintWriter(sendeSocket.getOutputStream());
 					
 					out.println("//##Offline##//");

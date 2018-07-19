@@ -1,2 +1,2 @@
-ID: 1//NAME: Daniel Seidel//IP: 93.215.58.88//
-ID: 2//NAME: Benedikt//IP: 92.211.29.192//
+ID: 1//NAME: Benedikt//IP: 92.211.29.192//
+ID: 2//NAME: Rosi_lokal//IP: 192.168.178.44//

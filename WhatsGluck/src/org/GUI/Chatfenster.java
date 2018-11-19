@@ -88,7 +88,7 @@ public class Chatfenster extends JFrame{
 	public static final int KONTAKT_HOEHE = 50;
 	public static final String STANDART_SENDE_TEXT = "Nachricht schreiben...";
 	public static final int MAX_WORTLAENGE = 30;
-	public static final int PORT_NUMBER = 60000;
+	public static final int PORT_NUMBER = 1234; //Für Test: 60000
 	
 	public Chatfenster() {
 		
